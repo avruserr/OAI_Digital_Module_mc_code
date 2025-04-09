@@ -14,6 +14,7 @@
 #include "AD7490.h"
 #include "MPP_Module.h"
 #include "LoRa.h"
+#include "avruser_CAN.h"
 
 #pragma pack(push, 2)
 
@@ -34,10 +35,14 @@ typedef struct
 	type_AD7490_data								mb_AD7490;									//+42   	bytes			//+2149 regs				len bytes 100				50
 	type_temperature_data							mb_temperature;							//+	2			bytes			//+2199 regs				len bytes 2					1
 	type_SPI_Ansver									mb_SPI_Device;								//+  +512 bytes			//+2200 regs 				len bytes 510				255
+	type_can_receive_struct			mb_CAN1_receive_struct;
+	type_can_receive_struct			mb_CAN2_receive_struct;
+	
 	uint16_t 										dummy1[MB_DATA_SIZE  - (sizeof(type_adc_data_struct)/2) -(sizeof(type_uart_receive_struct)) -\
 																		 (sizeof(type_ina_226_data)) - \
 																		 (sizeof(type_gpio_in_union)/2) - (sizeof(type_spi_receive_data)/2) - (sizeof(type_ina_226_data)/2) -\
-																		 (sizeof(type_power_module_output_data)/2) - (sizeof(type_AD7490_data)/2)- (sizeof(type_temperature_data)/2)-(sizeof(type_SPI_Ansver)/2)]; // +0x10
+																		 (sizeof(type_power_module_output_data)/2) - (sizeof(type_AD7490_data)/2)- (sizeof(type_temperature_data)/2)-(sizeof(type_SPI_Ansver)/2) -\
+																			(sizeof(type_can_receive_struct))]; // +0x10
 	
 	//analog_out			
 	type_dac_data_struct						mb_dac1; 										//	+0
@@ -61,10 +66,17 @@ typedef struct
 	type_MPP_kpa_module							mb_MPP_CH1_Module;					//							// +1393 regs
 	type_MPP_kpa_module							mb_MPP_CH2_Module;					//							// +1400 regs
 	type_SPI_RW_data							mb_SPI_Device1;								//							//	+1407 regs //len 524 bytes // 262 regs
+	type_can_settings_struct 					mb_CAN1_settings_struct;
+	type_can_settings_struct 					mb_CAN2_settings_struct;
+	type_can_filter_settings_struct 	mb_CAN12_filter_settings_struct;
+	type_can_transmit_struct					mb_CAN1_transmit_struct;
+	type_can_transmit_struct					mb_CAN2_transmit_struct;
+	
 	uint16_t									dummy2[MB_DATA_SIZE - (sizeof(type_uart_setting_union)/2) - (sizeof(type_dac_data_struct)) - \
 		(sizeof(type_adc_settings)/2)-(sizeof(type_gpio_config_union)/2) - (sizeof(type_gpio_out_union)/2) - (sizeof(type_gpio_in_union)/2) - \
 		(sizeof(type_uart_transmit_struct)) - (sizeof(type_alternative_gpio_out_struct)/2) - (sizeof(type_spi_settings_struct)/2) - \
-		(sizeof(type_spi_transmit_struct)/2) - (sizeof(type_MKO_Struct)/2)-(sizeof(type_stm_kpa_module)/2)-(sizeof(type_MPP_kpa_module))-(sizeof(type_SPI_RW_data)/2)]; // sizeof in bytes, uint8, massive is uint16
+		(sizeof(type_spi_transmit_struct)/2) - (sizeof(type_MKO_Struct)/2)-(sizeof(type_stm_kpa_module)/2)-(sizeof(type_MPP_kpa_module))-(sizeof(type_SPI_RW_data)/2) - \
+		(sizeof(type_can_settings_struct)) - (sizeof(type_can_filter_settings_struct)/2) - (sizeof(type_can_transmit_struct))]; // sizeof in bytes, uint8, massive is uint16
 	uint16_t								dummy3[MD_DATA_SIZE_DISKRETE];
 	uint16_t								dummy4[MD_DATA_SIZE_DISKRETE];
 }type_modbus_data_named;
