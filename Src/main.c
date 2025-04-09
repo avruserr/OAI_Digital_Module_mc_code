@@ -73,6 +73,7 @@ extern TIM_HandleTypeDef htim3;
 #include "Power_module.h"
 #include "my_MKO.h"
 #include "MPP_Module.h"
+#include "avruser_CAN.h"
 
 type_VCP_UART vcp;
 

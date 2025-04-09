@@ -7,6 +7,7 @@
 
 typedef struct 
 {
+	uint16_t scaler;
 	
 }
 type_can_settings_struct;
