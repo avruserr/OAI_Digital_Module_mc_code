@@ -3,6 +3,14 @@
 
 #include "main.h"
 
+#define NUMBER_OF_ATTEMPTS 100000
+
+typedef enum
+{
+	canInitSuccess = 0,
+	canInitError = 1,
+} canInitResult;
+
 #pragma pack(push, 2)
 
 typedef struct 

@@ -1,1 +1,82 @@
 #include "avruser_CAN.h"
+
+canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struct initStruct)
+{
+	uint32_t temporary = CAN_to_init->MCR;
+	temporary |= CAN_MCR_INRQ_Msk;
+	temporary &= ~CAN_MCR_SLEEP_Msk;
+	CAN_to_init->MCR = temporary; // requesting CAN to switch to initialization mode
+	
+	for(int32_t att = NUMBER_OF_ATTEMPTS; ; att--)
+	{
+		if ((CAN_to_init->MSR & CAN_MSR_INAK_Msk) && ~(CAN_to_init->MSR | ~CAN_MSR_SLAK_Msk)) //waiting for CAN to switch to initialization mode
+		{
+			break;
+		}
+		if (att == 0)
+		{
+			return canInitError;
+		}
+	}
+	
+	if (initStruct.DBF) CAN_to_init->MCR |= CAN_MCR_DBF_Msk;
+	else CAN_to_init->MCR &= ~CAN_MCR_DBF_Msk;
+	
+	if (initStruct.ABOM) CAN_to_init->MCR |= CAN_MCR_ABOM_Msk;
+	else CAN_to_init->MCR &= ~CAN_MCR_ABOM_Msk;
+	
+	if (initStruct.AWUM) CAN_to_init->MCR |= CAN_MCR_AWUM_Msk;
+	else CAN_to_init->MCR &= ~CAN_MCR_AWUM_Msk;
+	
+	if (initStruct.NART) CAN_to_init->MCR |= CAN_MCR_NART_Msk;
+	else CAN_to_init->MCR &= ~CAN_MCR_NART_Msk;
+	
+	if (initStruct.RFLM) CAN_to_init->MCR |= CAN_MCR_RFLM_Msk;
+	else CAN_to_init->MCR &= ~CAN_MCR_RFLM_Msk;
+	
+	if (initStruct.TXFP) CAN_to_init->MCR |= CAN_MCR_TXFP_Msk;
+	else CAN_to_init->MCR &= ~CAN_MCR_TXFP_Msk;
+	
+	if (initStruct.SILM) CAN_to_init->BTR |= CAN_BTR_SILM_Msk;
+	else CAN_to_init->BTR &= ~CAN_BTR_SILM_Msk;
+	
+	if (initStruct.LBKM) CAN_to_init->BTR |= CAN_BTR_LBKM_Msk;
+	else CAN_to_init->BTR &= ~CAN_BTR_LBKM_Msk;
+	
+	if (initStruct.BRP > 512) initStruct.BRP = 512;
+	else if (initStruct.BRP < 1) initStruct.BRP = 1;
+	
+	if (initStruct.TS1 > 16) initStruct.TS1 = 16;
+	else if (initStruct.TS1 < 1) initStruct.TS1 = 1;
+	
+	if (initStruct.TS2 > 8) initStruct.TS2 = 8;
+	else if (initStruct.TS2 < 1) initStruct.TS2 = 1;
+	
+	if (initStruct.SJW > 4) initStruct.SJW = 4;
+	else if (initStruct.SJW < 1) initStruct.SJW = 1;
+	
+	CAN_to_init->BTR &= ~(CAN_BTR_BRP_Msk | CAN_BTR_TS1_Msk | CAN_BTR_TS2_Msk | CAN_BTR_SJW_Msk);
+	CAN_to_init->BTR |= (((initStruct.BRP) - 1) << CAN_BTR_BRP_Pos);
+	CAN_to_init->BTR |= (((initStruct.TS1) - 1) << CAN_BTR_TS1_Pos);
+	CAN_to_init->BTR |= (((initStruct.TS2) - 1) << CAN_BTR_TS2_Pos);
+	CAN_to_init->BTR |= (((initStruct.SJW) - 1) << CAN_BTR_SJW_Pos);
+	
+	temporary = CAN_to_init->MCR;
+	temporary &= ~CAN_MCR_INRQ_Msk;
+	if (initStruct.SLEEP) temporary |= CAN_MCR_SLEEP_Msk;
+	CAN_to_init->MCR = temporary; // requesting CAN to switch to normal/sleep mode
+	
+	for(int32_t att = NUMBER_OF_ATTEMPTS; ; att--)
+	{
+		if (~(CAN_to_init->MSR | ~CAN_MSR_INAK_Msk) && ((initStruct.SLEEP != 0) == ((CAN_to_init->MSR & CAN_MSR_SLAK_Msk) != 0))) //waiting for CAN to switch to initialization mode
+		{
+			break;
+		}
+		if (att == 0)
+		{
+			return canInitError;
+		}
+	}
+	
+	return canInitSuccess;
+}
