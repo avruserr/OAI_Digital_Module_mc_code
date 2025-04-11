@@ -26,8 +26,8 @@ typedef struct
 	type_adc_data_struct 							mb_adc; 										//+0    															  len bytes 16        8
 	type_ina_226_data								ina226_3v3;									//+16 		bytes     //+8    regs			  len bytes 6	        3
 	type_ina_226_data								ina226_5v;									//+22 		bytes			//+11   regs				len bytes 6					3
-	type_uart_receive_struct						mb_uart1_receive_struct;		//+28 		bytes			//+14   regs				len bytes 2056			1026
-	type_uart_receive_struct 						mb_uart2_receive_struct;		//+2084		bytes			//+1042 regs				len bytes 2056			1026
+	type_uart_receive_struct						mb_uart1_receive_struct;		//+28 		bytes			//+14   regs				len bytes 2056			1028
+	type_uart_receive_struct 						mb_uart2_receive_struct;		//+2084		bytes			//+1042 regs				len bytes 2056			1028
 	type_gpio_in_union								mb_gpio_in_union;						//+4140		bytes			//+2070 regs				len bytes 8					4
 	type_spi_receive_data							mb_spi_receive_data;				//+4148		bytes			//+2074 regs				len bytes 128				64
 	type_ina_226_data								ina226_mother_board;				//+4276		bytes			//+2138 regs				len bytes 6					3
@@ -35,12 +35,12 @@ typedef struct
 	type_AD7490_data								mb_AD7490;									//+42   	bytes			//+2149 regs				len bytes 100				50
 	type_temperature_data							mb_temperature;							//+	2			bytes			//+2199 regs				len bytes 2					1
 	type_SPI_Ansver									mb_SPI_Device;								//+  +512 bytes			//+2200 regs 				len bytes 510				255
-	type_can_status_struct			mb_CAN1_status_struct;
-	type_can_status_struct			mb_CAN2_status_struct;
-	type_can_receive_struct			mb_CAN1_receive_struct[2];
-	type_can_receive_struct			mb_CAN2_receive_struct[2];
-	type_can_error_struct				mb_CAN1_error_struct;
-	type_can_error_struct				mb_CAN2_error_struct;
+	type_can_status_struct			mb_CAN1_status_struct;				//len bytes 22 regs 11
+	type_can_status_struct			mb_CAN2_status_struct;				//len bytes 22 regs 11
+	type_can_receive_struct			mb_CAN1_receive_struct[2];		//(len bytes 22 regs 11)*2
+	type_can_receive_struct			mb_CAN2_receive_struct[2];		//(len bytes 22 regs 11)*2
+	type_can_error_struct				mb_CAN1_error_struct;					//len bytes 2 regs 1
+	type_can_error_struct				mb_CAN2_error_struct;					//len bytes 2 regs 1
 	
 	uint16_t 										dummy1[MB_DATA_SIZE  - (sizeof(type_adc_data_struct)/2) -(sizeof(type_uart_receive_struct)) -\
 																		 (sizeof(type_ina_226_data)) - \
@@ -70,13 +70,13 @@ typedef struct
 	type_MPP_kpa_module							mb_MPP_CH1_Module;					//							// +1393 regs
 	type_MPP_kpa_module							mb_MPP_CH2_Module;					//							// +1400 regs
 	type_SPI_RW_data							mb_SPI_Device1;								//							//	+1407 regs //len 524 bytes // 262 regs
-	type_can_settings_struct 					mb_CAN1_settings_struct;
-	type_can_settings_struct 					mb_CAN2_settings_struct;
-	type_can_filter_settings_struct 	mb_CAN12_filter_settings_struct;
-	type_can_control_struct						mb_CAN1_control_struct;
-	type_can_control_struct						mb_CAN2_control_struct;
-	type_can_transmit_struct					mb_CAN1_transmit_struct[3];
-	type_can_transmit_struct					mb_CAN2_transmit_struct[3];
+	type_can_settings_struct 					mb_CAN1_settings_struct;					//len bytes 28 regs 14
+	type_can_settings_struct 					mb_CAN2_settings_struct;					//len bytes 28 regs 14
+	type_can_filter_settings_struct 	mb_CAN12_filter_settings_struct;	//len bytes 246 regs 123
+	type_can_control_struct						mb_CAN1_control_struct;						//len bytes 8 regs 4
+	type_can_control_struct						mb_CAN2_control_struct;						//len bytes 8 regs 4
+	type_can_transmit_struct					mb_CAN1_transmit_struct[3];				//(len bytes 22 regs 11)*3
+	type_can_transmit_struct					mb_CAN2_transmit_struct[3];				//(len bytes 22 regs 11)*3
 	
 	uint16_t									dummy2[MB_DATA_SIZE - (sizeof(type_uart_setting_union)/2) - (sizeof(type_dac_data_struct)) - \
 		(sizeof(type_adc_settings)/2)-(sizeof(type_gpio_config_union)/2) - (sizeof(type_gpio_out_union)/2) - (sizeof(type_gpio_in_union)/2) - \

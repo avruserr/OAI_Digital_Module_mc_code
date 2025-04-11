@@ -1,0 +1,20 @@
+can1 status 2455
+can2 status 2466
+can1 receive [0] 2477
+can1 receive [1] 2488
+can2 receive [0] 2499
+can2 receive [1] 2510
+can1 error 2521
+can2 error 2522
+
+can1 settings 1669
+can2 settings 1683
+can12 filter settings 1697
+can1 control 1820
+can2 control 1824
+can1 transmit [0] 1828
+can1 transmit [1] 1839
+can1 transmit [2] 1850
+can2 transmit [0] 1861
+can2 transmit [1] 1872
+can2 transmit [2] 1883

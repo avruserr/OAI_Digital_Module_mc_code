@@ -21,7 +21,6 @@ typedef struct
 	uint16_t TS1; //time segment 1 length in time quanta, equals to TS1 + 1 in CAN_BTR register
 	uint16_t TS2; //time segment 2 length in time quanta, equals to TS2 + 1 in CAN_BTR register
 	uint16_t SJW; //resynchronization jump width in time quanta, equals to SJW + 1 in CAN_BTR register
-	uint16_t silentMode; //if this field is not 0 bxCAN will not send ACK signal while receiving
 }
 type_can_settings_struct;
 
@@ -94,7 +93,8 @@ type_can_receive_struct;
 
 typedef struct 
 {
-	uint16_t TXRQ; //set this field to start the transmisson
+	uint16_t TXRQ; //set this field to start the transmission
+	uint16_t ABRQ; //set this field to abort transmission
 	uint16_t ID_L; //standart ID or 16 least significant bits of extended ID
 	uint16_t ID_H; //13 most significant bits of extended ID
 	uint16_t IDE; //set this field to make the identifier extended
