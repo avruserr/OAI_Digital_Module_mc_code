@@ -112,3 +112,56 @@ void avruser_CAN_Pull_Settings(CAN_TypeDef* CAN_to_read, type_can_settings_struc
 	targetStruct->TS2 = ((CAN_to_read->BTR) & CAN_BTR_TS2_Msk) >> CAN_BTR_TS2_Pos;
 	targetStruct->SJW = ((CAN_to_read->BTR) & CAN_BTR_SJW_Msk) >> CAN_BTR_SJW_Pos;
 }
+
+void avruser_CAN_FilterInit(type_can_filter_settings_struct* filterInitStruct)
+{
+	if ((filterInitStruct->filterNumber) != 28)
+	{
+		if (filterInitStruct->filterNumber > 27) filterInitStruct->filterNumber = 27;
+		
+		CAN1->FA1R &= ~(1U << (filterInitStruct->filterNumber));
+		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR1 = filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 0] + (filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 1] << 16);
+		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR2 = filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 2] + (filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 3] << 16);
+		CAN1->FA1R |= (1U << (filterInitStruct->filterNumber));
+	}
+	else
+	{
+		CAN1->FMR |= CAN_FMR_FINIT_Msk;
+		
+		if ((filterInitStruct->CAN2SB) > 28) filterInitStruct->CAN2SB = 28;
+		
+		CAN1->FMR &= ~CAN_FMR_CAN2SB_Msk;
+		CAN1->FMR |= ((filterInitStruct->CAN2SB) << CAN_FMR_CAN2SB_Pos);
+		
+		CAN1->FM1R = (filterInitStruct->CAN_FM1R_L + ((filterInitStruct->CAN_FM1R_H) << 16));
+		CAN1->FS1R = (filterInitStruct->CAN_FS1R_L + ((filterInitStruct->CAN_FS1R_H) << 16));
+		CAN1->FFA1R = (filterInitStruct->CAN_FFA1R_L + ((filterInitStruct->CAN_FFA1R_H) << 16));
+		CAN1->FA1R = (filterInitStruct->CAN_FA1R_L + ((filterInitStruct->CAN_FA1R_H) << 16));
+		
+		for (uint8_t filterBankIndex = 0; filterBankIndex < 28; filterBankIndex++)
+		{
+			(CAN1->sFilterRegister[filterBankIndex]).FR1 = filterInitStruct->CAN_FR[4*filterBankIndex + 0] + (filterInitStruct->CAN_FR[4*filterBankIndex + 1] << 16);
+			(CAN1->sFilterRegister[filterBankIndex]).FR2 = filterInitStruct->CAN_FR[4*filterBankIndex + 2] + (filterInitStruct->CAN_FR[4*filterBankIndex + 3] << 16);
+		}
+	}
+	
+	CAN1->FMR &= ~CAN_FMR_FINIT_Msk;
+	
+	filterInitStruct->CAN2SB = (((CAN1->FMR) & CAN_FMR_CAN2SB_Msk) >> CAN_FMR_CAN2SB_Pos);
+	filterInitStruct->CAN_FM1R_L = (uint16_t)(CAN1->FM1R & 0xFFFF);
+	filterInitStruct->CAN_FM1R_H = (uint16_t)((CAN1->FM1R >> 16) & 0xFFFF);
+	filterInitStruct->CAN_FS1R_L = (uint16_t)(CAN1->FS1R & 0xFFFF);
+	filterInitStruct->CAN_FS1R_H = (uint16_t)((CAN1->FS1R >> 16) & 0xFFFF);
+	filterInitStruct->CAN_FFA1R_L = (uint16_t)(CAN1->FFA1R & 0xFFFF);
+	filterInitStruct->CAN_FFA1R_H = (uint16_t)((CAN1->FFA1R >> 16) & 0xFFFF);
+	filterInitStruct->CAN_FA1R_L = (uint16_t)(CAN1->FA1R & 0xFFFF);
+	filterInitStruct->CAN_FA1R_H = (uint16_t)((CAN1->FA1R >> 16) & 0xFFFF);
+	
+	for (uint8_t filterBankIndex = 0; filterBankIndex < 28; filterBankIndex++)
+	{
+		filterInitStruct->CAN_FR[4*filterBankIndex + 0] = (uint16_t)(((CAN1->sFilterRegister[filterBankIndex]).FR1) & 0xFFFF);
+		filterInitStruct->CAN_FR[4*filterBankIndex + 1] = (uint16_t)((((CAN1->sFilterRegister[filterBankIndex]).FR1) >> 16) & 0xFFFF);
+		filterInitStruct->CAN_FR[4*filterBankIndex + 2] = (uint16_t)(((CAN1->sFilterRegister[filterBankIndex]).FR2) & 0xFFFF);
+		filterInitStruct->CAN_FR[4*filterBankIndex + 3] = (uint16_t)((((CAN1->sFilterRegister[filterBankIndex]).FR2) >> 16) & 0xFFFF);
+	}
+}
