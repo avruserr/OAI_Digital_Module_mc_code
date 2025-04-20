@@ -9,7 +9,8 @@ typedef enum
 {
 	canInitSuccess = 0,
 	canInitError = 1,
-} canInitResult;
+} 
+canInitResult;
 
 #pragma pack(push, 2)
 
@@ -123,5 +124,30 @@ typedef struct
 type_can_error_struct;
 
 #pragma pack(pop)
+
+typedef struct
+{
+	uint32_t ID;
+	uint8_t IDE;
+	uint8_t FMI;
+	uint8_t RTR;
+	uint8_t DLC;
+	uint8_t DATA[8];
+}
+FIFO_Element_Data_Typedef;
+
+struct FIFO_Element
+{
+	FIFO_Element_Data_Typedef Data;
+	struct FIFO_Element* next;
+};
+
+typedef struct FIFO_Element FIFO_Element_Typedef;
+
+typedef struct
+{
+	FIFO_Element_Typedef* FI;
+}
+FIFO_Typedef;
 
 #endif

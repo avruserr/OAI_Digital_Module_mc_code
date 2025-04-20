@@ -1,4 +1,5 @@
 #include "avruser_CAN.h"
+#include "stdlib.h"
 
 canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struct* initStruct)
 {
@@ -164,4 +165,75 @@ void avruser_CAN_FilterInit(type_can_filter_settings_struct* filterInitStruct)
 		filterInitStruct->CAN_FR[4*filterBankIndex + 2] = (uint16_t)(((CAN1->sFilterRegister[filterBankIndex]).FR2) & 0xFFFF);
 		filterInitStruct->CAN_FR[4*filterBankIndex + 3] = (uint16_t)((((CAN1->sFilterRegister[filterBankIndex]).FR2) >> 16) & 0xFFFF);
 	}
+}
+
+FIFO_Typedef* FIFO_Create()
+{
+	FIFO_Typedef* createFIFO = (FIFO_Typedef*)malloc(sizeof(FIFO_Typedef));
+	if (createFIFO != NULL) createFIFO->FI = NULL;
+	return createFIFO;
+}
+
+void FIFO_Delete(FIFO_Typedef* deleteFIFO)
+{
+	if (deleteFIFO == NULL) return;
+	FIFO_Element_Typedef* tempPointer = deleteFIFO->FI;
+	while(tempPointer != NULL)
+	{
+		FIFO_Element_Typedef* deletePointer = tempPointer;
+		tempPointer = tempPointer->next;
+		free(deletePointer);
+	}
+	free(deleteFIFO);
+}
+
+void FIFO_Push(FIFO_Element_Data_Typedef pushData, FIFO_Typedef* pushFIFO)
+{
+	if (pushFIFO == NULL) return;
+	FIFO_Element_Typedef* oldFI = pushFIFO->FI;
+	pushFIFO->FI = (FIFO_Element_Typedef*)malloc(sizeof(FIFO_Element_Typedef));
+	pushFIFO->FI->Data = pushData;
+	pushFIFO->FI->next = oldFI;
+}
+
+FIFO_Element_Data_Typedef FIFO_Pop(FIFO_Typedef* popFIFO)
+{
+	FIFO_Element_Data_Typedef popData;
+	if (popFIFO != NULL)
+	{
+		if (popFIFO->FI != NULL)
+		{
+			if (popFIFO->FI->next == NULL)
+			{
+				popData = popFIFO->FI->Data;
+				free(popFIFO->FI);
+				popFIFO->FI = NULL;
+			}
+			else
+			{
+				FIFO_Element_Typedef* tempPointer = popFIFO->FI;
+				while(tempPointer->next->next != NULL) tempPointer = tempPointer->next;
+				popData = tempPointer->next->Data;
+				free(tempPointer->next);
+				tempPointer->next = NULL;
+			}
+		}
+	}
+	return popData;
+}
+
+uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO)
+{
+	uint16_t length;
+	if (lengthFIFO != NULL) 
+	{
+		length = 0;
+		FIFO_Element_Typedef* tempPointer = lengthFIFO->FI;
+		while (tempPointer != NULL)
+		{
+			length++;
+			tempPointer = tempPointer->next;
+		}
+	}
+	return length;
 }
