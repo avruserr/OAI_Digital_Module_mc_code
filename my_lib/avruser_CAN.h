@@ -157,4 +157,11 @@ void FIFO_Push(FIFO_Element_Data_Typedef pushData, FIFO_Typedef* pushFIFO);
 FIFO_Element_Data_Typedef FIFO_Pop(FIFO_Typedef* popFIFO);
 uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO);
 
+typedef enum
+{
+	noOverrun = 0,
+	overrunOccured = 1,
+} 
+FIFO_Overrun_Flag_Typedef;
+
 #endif

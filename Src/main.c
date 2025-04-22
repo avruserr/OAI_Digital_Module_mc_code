@@ -127,6 +127,8 @@ uint8_t DAC_flag;
 
 FIFO_Typedef* CAN1_FIFO[2];
 FIFO_Typedef* CAN2_FIFO[2];
+FIFO_Overrun_Flag_Typedef CAN1_FIFO_Overrun[2];
+FIFO_Overrun_Flag_Typedef CAN2_FIFO_Overrun[2];
 
 /* USER CODE END PV */
 

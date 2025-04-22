@@ -238,7 +238,7 @@ uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO)
 	return length;
 }
 
-void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push)
+void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push, FIFO_Overrun_Flag_Typedef* overrunFlag)
 {
 	uint32_t identifierReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RIR;
 	uint32_t DLCReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDTR;
@@ -276,7 +276,41 @@ void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 		else dataToPush.DATA[byteIndex] = 0xFF & (uint8_t)(dataHighReg >> ((byteIndex - 4)*8));
 	}
 	
-	FIFO_Push(dataToPush, FIFO_to_push);
+	if (FIFO_Get_Length(FIFO_to_push) <= SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(dataToPush, FIFO_to_push);
+	else *overrunFlag = overrunOccured;
+}
+
+void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From, FIFO_Overrun_Flag_Typedef* overrunFlag)
+{
+	FIFO_Element_Data_Typedef frame = FIFO_Pop(FIFO_To_Get_From);
+	destinationStruct->numberOfFrames = FIFO_Get_Length(FIFO_To_Get_From);
+	destinationStruct->ID_L = (uint16_t)(frame.ID & 0xFFFF);
+	destinationStruct->ID_H = (uint16_t)((frame.ID & 0xFFFF0000) >> 16);
+	destinationStruct->IDE = frame.IDE;
+	destinationStruct->FMI = frame.FMI;
+	destinationStruct->RTR = frame.RTR;
+	destinationStruct->DLC = frame.DLC;
+	destinationStruct->DATA[0] = (uint16_t)(frame.DATA[0]) | ((uint16_t)frame.DATA[1] << 8);
+	destinationStruct->DATA[1] = (uint16_t)(frame.DATA[2]) | ((uint16_t)frame.DATA[3] << 8);
+	destinationStruct->DATA[2] = (uint16_t)(frame.DATA[4]) | ((uint16_t)frame.DATA[5] << 8);
+	destinationStruct->DATA[3] = (uint16_t)(frame.DATA[6]) | ((uint16_t)frame.DATA[7] << 8);
+	if (FIFO_Get_Length(FIFO_To_Get_From) < SOFTWARE_FIFO_MAX_SIZE) *overrunFlag = noOverrun;
+}
+
+void avruser_CAN_update_status_struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Overrun_Flag_Typedef* overrunFlags)
+{
+	destinationStruct->mode = (uint16_t)((CAN_to_read->MSR & (CAN_MSR_SLAK_Msk | CAN_MSR_INAK_Msk)) >> CAN_MSR_INAK_Pos);
+	uint32_t TSReg = CAN_to_read->TSR;
+	destinationStruct->TME = (uint16_t)(((TSReg & CAN_TSR_TME0_Msk) >> (CAN_TSR_TME0_Pos - 0)) | ((TSReg & CAN_TSR_TME1_Msk) >> (CAN_TSR_TME1_Pos - 1)) | ((TSReg & CAN_TSR_TME2_Msk) >> (CAN_TSR_TME2_Pos - 2)));
+	destinationStruct->TERR = (uint16_t)(((TSReg & CAN_TSR_TERR0_Msk) >> (CAN_TSR_TERR0_Pos - 0)) | ((TSReg & CAN_TSR_TERR1_Msk) >> (CAN_TSR_TERR1_Pos - 1)) | ((TSReg & CAN_TSR_TERR2_Msk) >> (CAN_TSR_TERR2_Pos - 2)));
+	destinationStruct->ALST = (uint16_t)(((TSReg & CAN_TSR_ALST0_Msk) >> (CAN_TSR_ALST0_Pos - 0)) | ((TSReg & CAN_TSR_ALST1_Msk) >> (CAN_TSR_ALST1_Pos - 1)) | ((TSReg & CAN_TSR_ALST2_Msk) >> (CAN_TSR_ALST2_Pos - 2)));
+	destinationStruct->TXOK = (uint16_t)(((TSReg & CAN_TSR_TXOK0_Msk) >> (CAN_TSR_TXOK0_Pos - 0)) | ((TSReg & CAN_TSR_TXOK1_Msk) >> (CAN_TSR_TXOK1_Pos - 1)) | ((TSReg & CAN_TSR_TXOK2_Msk) >> (CAN_TSR_TXOK2_Pos - 2)));
+	destinationStruct->RQCP = (uint16_t)(((TSReg & CAN_TSR_RQCP0_Msk) >> (CAN_TSR_RQCP0_Pos - 0)) | ((TSReg & CAN_TSR_RQCP1_Msk) >> (CAN_TSR_RQCP1_Pos - 1)) | ((TSReg & CAN_TSR_RQCP2_Msk) >> (CAN_TSR_RQCP2_Pos - 2)));
+	destinationStruct->softwareFIFO_Overrun = overrunFlags[0] | (overrunFlags[1] << 1);
+	destinationStruct->REC = (CAN_to_read->ESR & CAN_ESR_REC_Msk) >> CAN_ESR_REC_Pos;
+	destinationStruct->TEC = (CAN_to_read->ESR & CAN_ESR_TEC_Msk) >> CAN_ESR_TEC_Pos;
+	destinationStruct->BOFF = (CAN_to_read->ESR & CAN_ESR_BOFF_Msk) >> CAN_ESR_BOFF_Pos;
+	destinationStruct->EPVF = (CAN_to_read->ESR & CAN_ESR_EPVF_Msk) >> CAN_ESR_EPVF_Pos;
 }
 
 void avruser_CAN_transmit_IT_handler(CAN_TypeDef* CAN_to_handle)
