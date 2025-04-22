@@ -134,6 +134,7 @@ typedef struct
 	uint8_t RTR;
 	uint8_t DLC;
 	uint8_t DATA[8];
+	uint8_t LEC;
 }
 FIFO_Element_Data_Typedef;
 
@@ -150,6 +151,8 @@ typedef struct
 	FIFO_Element_Typedef* FI;
 }
 FIFO_Typedef;
+
+typedef FIFO_Typedef Error_FIFO_Typedef;
 
 FIFO_Typedef* FIFO_Create();
 void FIFO_Delete(FIFO_Typedef* deleteFIFO);

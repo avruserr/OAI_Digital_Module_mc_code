@@ -1,6 +1,12 @@
 #include "avruser_CAN.h"
 #include "stdlib.h"
 
+void avruser_CAN_ier_default_setup(CAN_TypeDef* CAN_to_setup)
+{
+	CAN_to_setup->IER |= (CAN_IER_TMEIE_Msk | CAN_IER_FMPIE0_Msk | CAN_IER_FMPIE1_Msk | CAN_IER_ERRIE_Msk | CAN_IER_LECIE_Msk | CAN_IER_WKUIE_Msk);
+	CAN_to_setup->IER &= ~(CAN_IER_FFIE0_Msk | CAN_IER_FOVIE0_Msk | CAN_IER_FFIE1_Msk | CAN_IER_FOVIE1_Msk | CAN_IER_EWGIE_Msk | CAN_IER_EPVIE_Msk | CAN_IER_BOFIE_Msk | CAN_IER_SLKIE_Msk);
+}
+
 canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struct* initStruct)
 {
 	uint32_t temporary = CAN_to_init->MCR;
@@ -61,6 +67,8 @@ canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struc
 	CAN_to_init->BTR |= (((initStruct->TS1) - 1) << CAN_BTR_TS1_Pos);
 	CAN_to_init->BTR |= (((initStruct->TS2) - 1) << CAN_BTR_TS2_Pos);
 	CAN_to_init->BTR |= (((initStruct->SJW) - 1) << CAN_BTR_SJW_Pos);
+	
+	avruser_CAN_ier_default_setup(CAN_to_init);
 	
 	temporary = CAN_to_init->MCR;
 	temporary &= ~CAN_MCR_INRQ_Msk;
@@ -313,12 +321,94 @@ void avruser_CAN_update_status_struct(CAN_TypeDef* CAN_to_read, type_can_status_
 	destinationStruct->EPVF = (CAN_to_read->ESR & CAN_ESR_EPVF_Msk) >> CAN_ESR_EPVF_Pos;
 }
 
-void avruser_CAN_transmit_IT_handler(CAN_TypeDef* CAN_to_handle)
+void avruser_CAN_request_transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber, type_can_transmit_struct* transmissionData)
 {
-	
+	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR = 0;
+	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR = 0;
+	if (mailboxNumber == 0)
+	{
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI0R_EXID_Pos : CAN_TI0R_STID_Pos);
+		if ((transmissionData->IDE))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_IDE_Msk;
+		if ((transmissionData->RTR))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_RTR_Msk;
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT0R_DLC_Pos);
+	}
+	else if (mailboxNumber == 1)
+	{
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI1R_EXID_Pos : CAN_TI1R_STID_Pos);
+		if ((transmissionData->IDE))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_IDE_Msk;
+		if ((transmissionData->RTR))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_RTR_Msk;
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT1R_DLC_Pos);
+	}
+	else if (mailboxNumber == 2)
+	{
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI2R_EXID_Pos : CAN_TI2R_STID_Pos);
+		if ((transmissionData->IDE))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_IDE_Msk;
+		if ((transmissionData->RTR))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_RTR_Msk;
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT2R_DLC_Pos);
+	}
+	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDLR = ((uint32_t)(transmissionData->DATA[0]) | ((uint32_t)(transmissionData->DATA[1]) << 16));
+	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDHR = ((uint32_t)(transmissionData->DATA[2]) | ((uint32_t)(transmissionData->DATA[3]) << 16));
+	if (mailboxNumber == 0)
+	{
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_TXRQ_Msk;
+	}
+	else if (mailboxNumber == 1)
+	{
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_TXRQ_Msk;
+	}
+	else if (mailboxNumber == 2)
+	{
+		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_TXRQ_Msk;
+	}
 }
 
-void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle)
+void avruser_CAN_request_abort(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber)
 {
-	
+	switch (mailboxNumber)
+	{
+		case 0:
+			CAN_to_request_from->TSR |= CAN_TSR_ABRQ0;
+			break;
+		case 1:
+			CAN_to_request_from->TSR |= CAN_TSR_ABRQ1;
+			break;
+		case 2:
+			CAN_to_request_from->TSR |= CAN_TSR_ABRQ2;
+			break;
+	}
+}
+
+void avruser_CAN_transmit_IT_handler(CAN_TypeDef* CAN_to_handle)
+{
+	if (CAN_to_handle->TSR & CAN_TSR_RQCP0_Msk) CAN_to_handle->TSR |= CAN_TSR_RQCP0_Msk;
+	if (CAN_to_handle->TSR & CAN_TSR_RQCP1_Msk) CAN_to_handle->TSR |= CAN_TSR_RQCP1_Msk;
+	if (CAN_to_handle->TSR & CAN_TSR_RQCP2_Msk) CAN_to_handle->TSR |= CAN_TSR_RQCP2_Msk;
+}
+
+void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, Error_FIFO_Typedef* FIFO_to_push)
+{
+	if (CAN_to_handle->MSR & CAN_MSR_ERRI_Msk)
+	{
+		CAN_to_handle->MSR |= CAN_MSR_ERRI_Msk;
+		FIFO_Element_Data_Typedef element_to_push;
+		element_to_push.LEC = ((CAN_to_handle->ESR & CAN_ESR_LEC_Msk) >> CAN_ESR_LEC_Pos);
+		FIFO_Push(element_to_push, FIFO_to_push);
+	}
+	if (CAN_to_handle->MSR & CAN_MSR_WKUI_Msk)
+	{
+		CAN_to_handle->MSR |= CAN_MSR_WKUI_Msk;
+	}
+}
+
+void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, Error_FIFO_Typedef* FIFO_To_Get_From)
+{
+	if (FIFO_Get_Length(FIFO_To_Get_From) > 0)
+	{
+		FIFO_Element_Data_Typedef error_element = FIFO_Pop(FIFO_To_Get_From);
+		destinationStruct->errorCode = error_element.LEC;
+	}
+	else
+	{
+		destinationStruct->errorCode = 0;
+	}
 }

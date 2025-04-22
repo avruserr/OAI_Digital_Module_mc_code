@@ -127,6 +127,8 @@ uint8_t DAC_flag;
 
 FIFO_Typedef* CAN1_FIFO[2];
 FIFO_Typedef* CAN2_FIFO[2];
+Error_FIFO_Typedef* CAN1_Errors_FIFO;
+Error_FIFO_Typedef* CAN2_Errors_FIFO;
 FIFO_Overrun_Flag_Typedef CAN1_FIFO_Overrun[2];
 FIFO_Overrun_Flag_Typedef CAN2_FIFO_Overrun[2];
 
@@ -261,6 +263,9 @@ int main(void)
 	CAN1_FIFO[1] = FIFO_Create();
 	CAN2_FIFO[0] = FIFO_Create();
 	CAN2_FIFO[1] = FIFO_Create();
+	
+	CAN1_Errors_FIFO = FIFO_Create();
+	CAN2_Errors_FIFO = FIFO_Create();
 
 	//HAL_UART_Abort_IT(&huart2);
 	//MY_USART2_UART_Init(&mb_uart2_setting);                                                         
