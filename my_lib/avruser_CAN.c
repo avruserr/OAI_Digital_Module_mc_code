@@ -175,7 +175,7 @@ void avruser_CAN_FilterInit(type_can_filter_settings_struct* filterInitStruct)
 	}
 }
 
-FIFO_Typedef* FIFO_Create()
+FIFO_Typedef* FIFO_Create(void)
 {
 	FIFO_Typedef* createFIFO = (FIFO_Typedef*)malloc(sizeof(FIFO_Typedef));
 	if (createFIFO != NULL) createFIFO->FI = NULL;
@@ -258,10 +258,10 @@ void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 	if (FIFO_Number == 0)
 	{
 		CAN_to_handle->RF0R |= CAN_RF0R_RFOM0_Msk; //releasing FIFO 0 output mailbox
-		dataToPush.IDE = (identifierReg & CAN_RI0R_IDE_Msk) >> CAN_RI0R_IDE_Pos;
-		dataToPush.FMI = (DLCReg & CAN_RDT0R_FMI_Msk) >> CAN_RDT0R_FMI_Pos;
-		dataToPush.RTR = (identifierReg & CAN_RI0R_RTR_Msk) >> CAN_RI0R_RTR_Pos;
-		dataToPush.DLC = (DLCReg & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos;
+		dataToPush.IDE = (uint8_t)((identifierReg & CAN_RI0R_IDE_Msk) >> CAN_RI0R_IDE_Pos);
+		dataToPush.FMI = (uint8_t)((DLCReg & CAN_RDT0R_FMI_Msk) >> CAN_RDT0R_FMI_Pos);
+		dataToPush.RTR = (uint8_t)((identifierReg & CAN_RI0R_RTR_Msk) >> CAN_RI0R_RTR_Pos);
+		dataToPush.DLC = (uint8_t)((DLCReg & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos);
 		
 		if (dataToPush.IDE) dataToPush.ID = (identifierReg & (CAN_RI0R_EXID_Msk | CAN_RI0R_STID_Msk)) >> CAN_RI0R_EXID_Pos;
 		else dataToPush.ID = (identifierReg & CAN_RI0R_STID_Msk) >> CAN_RI0R_STID_Pos;
@@ -269,10 +269,10 @@ void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 	else if (FIFO_Number == 1) 
 	{
 		CAN_to_handle->RF1R |= CAN_RF1R_RFOM1_Msk; //releasing FIFO 1 output mailbox
-		dataToPush.IDE = (identifierReg & CAN_RI1R_IDE_Msk) >> CAN_RI1R_IDE_Pos;
-		dataToPush.FMI = (DLCReg & CAN_RDT1R_FMI_Msk) >> CAN_RDT1R_FMI_Pos;
-		dataToPush.RTR = (identifierReg & CAN_RI1R_RTR_Msk) >> CAN_RI1R_RTR_Pos;
-		dataToPush.DLC = (DLCReg & CAN_RDT1R_DLC_Msk) >> CAN_RDT1R_DLC_Pos;
+		dataToPush.IDE = (uint8_t)((identifierReg & CAN_RI1R_IDE_Msk) >> CAN_RI1R_IDE_Pos);
+		dataToPush.FMI = (uint8_t)((DLCReg & CAN_RDT1R_FMI_Msk) >> CAN_RDT1R_FMI_Pos);
+		dataToPush.RTR = (uint8_t)((identifierReg & CAN_RI1R_RTR_Msk) >> CAN_RI1R_RTR_Pos);
+		dataToPush.DLC = (uint8_t)((DLCReg & CAN_RDT1R_DLC_Msk) >> CAN_RDT1R_DLC_Pos);
 		
 		if (dataToPush.IDE) dataToPush.ID = (identifierReg & (CAN_RI1R_EXID_Msk | CAN_RI1R_STID_Msk)) >> CAN_RI1R_EXID_Pos;
 		else dataToPush.ID = (identifierReg & CAN_RI1R_STID_Msk) >> CAN_RI1R_STID_Pos;
@@ -280,28 +280,28 @@ void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 	
 	for (uint8_t byteIndex = 0; byteIndex < (dataToPush.DLC); byteIndex++)
 	{
-		if (byteIndex < 4) dataToPush.DATA[byteIndex] = 0xFF & (uint8_t)(dataLowReg >> (byteIndex*8));
-		else dataToPush.DATA[byteIndex] = 0xFF & (uint8_t)(dataHighReg >> ((byteIndex - 4)*8));
+		if (byteIndex < 4) (dataToPush.DATA)[byteIndex] = (uint8_t)(0xFF & (dataLowReg >> (byteIndex*8)));
+		else (dataToPush.DATA)[byteIndex] = (uint8_t)(0xFF & (dataHighReg >> ((byteIndex - 4)*8)));
 	}
 	
-	if (FIFO_Get_Length(FIFO_to_push) <= SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(dataToPush, FIFO_to_push);
+	if (FIFO_Get_Length(FIFO_to_push) < SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(dataToPush, FIFO_to_push);
 	else *overrunFlag = overrunOccured;
 }
 
 void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From, FIFO_Overrun_Flag_Typedef* overrunFlag)
 {
 	FIFO_Element_Data_Typedef frame = FIFO_Pop(FIFO_To_Get_From);
-	destinationStruct->numberOfFrames = FIFO_Get_Length(FIFO_To_Get_From);
+	//destinationStruct->numberOfFrames = FIFO_Get_Length(FIFO_To_Get_From);
 	destinationStruct->ID_L = (uint16_t)(frame.ID & 0xFFFF);
 	destinationStruct->ID_H = (uint16_t)((frame.ID & 0xFFFF0000) >> 16);
 	destinationStruct->IDE = frame.IDE;
 	destinationStruct->FMI = frame.FMI;
 	destinationStruct->RTR = frame.RTR;
 	destinationStruct->DLC = frame.DLC;
-	destinationStruct->DATA[0] = (uint16_t)(frame.DATA[0]) | ((uint16_t)frame.DATA[1] << 8);
-	destinationStruct->DATA[1] = (uint16_t)(frame.DATA[2]) | ((uint16_t)frame.DATA[3] << 8);
-	destinationStruct->DATA[2] = (uint16_t)(frame.DATA[4]) | ((uint16_t)frame.DATA[5] << 8);
-	destinationStruct->DATA[3] = (uint16_t)(frame.DATA[6]) | ((uint16_t)frame.DATA[7] << 8);
+	destinationStruct->DATA[0] = (uint16_t)(frame.DATA[0]) | ((uint16_t)(frame.DATA[1]) << 8);
+	destinationStruct->DATA[1] = (uint16_t)(frame.DATA[2]) | ((uint16_t)(frame.DATA[3]) << 8);
+	destinationStruct->DATA[2] = (uint16_t)(frame.DATA[4]) | ((uint16_t)(frame.DATA[5]) << 8);
+	destinationStruct->DATA[3] = (uint16_t)(frame.DATA[6]) | ((uint16_t)(frame.DATA[7]) << 8);
 	if (FIFO_Get_Length(FIFO_To_Get_From) < SOFTWARE_FIFO_MAX_SIZE) *overrunFlag = noOverrun;
 }
 
@@ -392,7 +392,7 @@ void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, Error_FIFO
 		CAN_to_handle->MSR |= CAN_MSR_ERRI_Msk;
 		FIFO_Element_Data_Typedef element_to_push;
 		element_to_push.LEC = ((CAN_to_handle->ESR & CAN_ESR_LEC_Msk) >> CAN_ESR_LEC_Pos);
-		FIFO_Push(element_to_push, FIFO_to_push);
+		if (FIFO_Get_Length(FIFO_to_push) <= SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(element_to_push, FIFO_to_push);
 	}
 	if (CAN_to_handle->MSR & CAN_MSR_WKUI_Msk)
 	{

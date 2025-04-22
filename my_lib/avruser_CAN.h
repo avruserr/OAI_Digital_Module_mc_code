@@ -154,7 +154,7 @@ FIFO_Typedef;
 
 typedef FIFO_Typedef Error_FIFO_Typedef;
 
-FIFO_Typedef* FIFO_Create();
+FIFO_Typedef* FIFO_Create(void);
 void FIFO_Delete(FIFO_Typedef* deleteFIFO);
 void FIFO_Push(FIFO_Element_Data_Typedef pushData, FIFO_Typedef* pushFIFO);
 FIFO_Element_Data_Typedef FIFO_Pop(FIFO_Typedef* popFIFO);

@@ -380,6 +380,44 @@ void OTG_FS_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void CAN1_TX_IRQHandler(void)
+{
+	
+}
 
+void CAN1_RX0_IRQHandler(void)
+{
+	
+}
+
+void CAN1_RX1_IRQHandler(void)
+{
+	
+}
+
+void CAN1_SCE_IRQHandler(void)
+{
+	
+}
+
+void CAN2_TX_IRQHandler(void)
+{
+	
+}
+
+void CAN2_RX0_IRQHandler(void)
+{
+	
+}
+
+void CAN2_RX1_IRQHandler(void)
+{
+	
+}
+
+void CAN2_SCE_IRQHandler(void)
+{
+	
+}
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
