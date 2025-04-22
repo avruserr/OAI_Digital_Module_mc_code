@@ -125,7 +125,8 @@ uint8_t time_slot_flag_5ms = 0;
 	
 uint8_t DAC_flag;
 
-
+FIFO_Typedef* CAN1_FIFO[2];
+FIFO_Typedef* CAN2_FIFO[2];
 
 /* USER CODE END PV */
 
@@ -254,7 +255,10 @@ int main(void)
 	previous_time_2 = 0;
 	timer_slot_5ms_counter = 0;
 	
-	
+	CAN1_FIFO[0] = FIFO_Create();
+	CAN1_FIFO[1] = FIFO_Create();
+	CAN2_FIFO[0] = FIFO_Create();
+	CAN2_FIFO[1] = FIFO_Create();
 
 	//HAL_UART_Abort_IT(&huart2);
 	//MY_USART2_UART_Init(&mb_uart2_setting);                                                         

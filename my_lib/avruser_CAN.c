@@ -237,3 +237,54 @@ uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO)
 	}
 	return length;
 }
+
+void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push)
+{
+	uint32_t identifierReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RIR;
+	uint32_t DLCReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDTR;
+	uint32_t dataLowReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDLR;
+	uint32_t dataHighReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDHR;
+	
+	FIFO_Element_Data_Typedef dataToPush;
+	
+	if (FIFO_Number == 0)
+	{
+		CAN_to_handle->RF0R |= CAN_RF0R_RFOM0_Msk; //releasing FIFO 0 output mailbox
+		dataToPush.IDE = (identifierReg & CAN_RI0R_IDE_Msk) >> CAN_RI0R_IDE_Pos;
+		dataToPush.FMI = (DLCReg & CAN_RDT0R_FMI_Msk) >> CAN_RDT0R_FMI_Pos;
+		dataToPush.RTR = (identifierReg & CAN_RI0R_RTR_Msk) >> CAN_RI0R_RTR_Pos;
+		dataToPush.DLC = (DLCReg & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos;
+		
+		if (dataToPush.IDE) dataToPush.ID = (identifierReg & (CAN_RI0R_EXID_Msk | CAN_RI0R_STID_Msk)) >> CAN_RI0R_EXID_Pos;
+		else dataToPush.ID = (identifierReg & CAN_RI0R_STID_Msk) >> CAN_RI0R_STID_Pos;
+	}
+	else if (FIFO_Number == 1) 
+	{
+		CAN_to_handle->RF1R |= CAN_RF1R_RFOM1_Msk; //releasing FIFO 1 output mailbox
+		dataToPush.IDE = (identifierReg & CAN_RI1R_IDE_Msk) >> CAN_RI1R_IDE_Pos;
+		dataToPush.FMI = (DLCReg & CAN_RDT1R_FMI_Msk) >> CAN_RDT1R_FMI_Pos;
+		dataToPush.RTR = (identifierReg & CAN_RI1R_RTR_Msk) >> CAN_RI1R_RTR_Pos;
+		dataToPush.DLC = (DLCReg & CAN_RDT1R_DLC_Msk) >> CAN_RDT1R_DLC_Pos;
+		
+		if (dataToPush.IDE) dataToPush.ID = (identifierReg & (CAN_RI1R_EXID_Msk | CAN_RI1R_STID_Msk)) >> CAN_RI1R_EXID_Pos;
+		else dataToPush.ID = (identifierReg & CAN_RI1R_STID_Msk) >> CAN_RI1R_STID_Pos;
+	}
+	
+	for (uint8_t byteIndex = 0; byteIndex < (dataToPush.DLC); byteIndex++)
+	{
+		if (byteIndex < 4) dataToPush.DATA[byteIndex] = 0xFF & (uint8_t)(dataLowReg >> (byteIndex*8));
+		else dataToPush.DATA[byteIndex] = 0xFF & (uint8_t)(dataHighReg >> ((byteIndex - 4)*8));
+	}
+	
+	FIFO_Push(dataToPush, FIFO_to_push);
+}
+
+void avruser_CAN_transmit_IT_handler(CAN_TypeDef* CAN_to_handle)
+{
+	
+}
+
+void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle)
+{
+	
+}

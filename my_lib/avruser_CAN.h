@@ -4,6 +4,7 @@
 #include "main.h"
 
 #define NUMBER_OF_ATTEMPTS 100000
+#define SOFTWARE_FIFO_MAX_SIZE 1000
 
 typedef enum
 {
@@ -149,5 +150,11 @@ typedef struct
 	FIFO_Element_Typedef* FI;
 }
 FIFO_Typedef;
+
+FIFO_Typedef* FIFO_Create();
+void FIFO_Delete(FIFO_Typedef* deleteFIFO);
+void FIFO_Push(FIFO_Element_Data_Typedef pushData, FIFO_Typedef* pushFIFO);
+FIFO_Element_Data_Typedef FIFO_Pop(FIFO_Typedef* popFIFO);
+uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO);
 
 #endif
