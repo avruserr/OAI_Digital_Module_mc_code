@@ -1,12 +1,6 @@
 #include "avruser_CAN.h"
 #include "stdlib.h"
 
-void avruser_CAN_ier_default_setup(CAN_TypeDef* CAN_to_setup)
-{
-	CAN_to_setup->IER |= (CAN_IER_TMEIE_Msk | CAN_IER_FMPIE0_Msk | CAN_IER_FMPIE1_Msk | CAN_IER_ERRIE_Msk | CAN_IER_LECIE_Msk | CAN_IER_WKUIE_Msk);
-	CAN_to_setup->IER &= ~(CAN_IER_FFIE0_Msk | CAN_IER_FOVIE0_Msk | CAN_IER_FFIE1_Msk | CAN_IER_FOVIE1_Msk | CAN_IER_EWGIE_Msk | CAN_IER_EPVIE_Msk | CAN_IER_BOFIE_Msk | CAN_IER_SLKIE_Msk);
-}
-
 canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struct* initStruct)
 {
 	uint32_t temporary = CAN_to_init->MCR;
@@ -28,6 +22,8 @@ canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struc
 	
 	if (initStruct->DBF) CAN_to_init->MCR |= CAN_MCR_DBF_Msk;
 	else CAN_to_init->MCR &= ~CAN_MCR_DBF_Msk;
+	
+	CAN_to_init->MCR &= ~CAN_MCR_TTCM_Msk;
 	
 	if (initStruct->ABOM) CAN_to_init->MCR |= CAN_MCR_ABOM_Msk;
 	else CAN_to_init->MCR &= ~CAN_MCR_ABOM_Msk;
@@ -68,7 +64,8 @@ canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struc
 	CAN_to_init->BTR |= (((initStruct->TS2) - 1) << CAN_BTR_TS2_Pos);
 	CAN_to_init->BTR |= (((initStruct->SJW) - 1) << CAN_BTR_SJW_Pos);
 	
-	avruser_CAN_ier_default_setup(CAN_to_init);
+	CAN_to_init->IER |= (CAN_IER_TMEIE_Msk | CAN_IER_FMPIE0_Msk | CAN_IER_FMPIE1_Msk | CAN_IER_ERRIE_Msk | CAN_IER_LECIE_Msk | CAN_IER_WKUIE_Msk);
+	CAN_to_init->IER &= ~(CAN_IER_FFIE0_Msk | CAN_IER_FOVIE0_Msk | CAN_IER_FFIE1_Msk | CAN_IER_FOVIE1_Msk | CAN_IER_EWGIE_Msk | CAN_IER_EPVIE_Msk | CAN_IER_BOFIE_Msk | CAN_IER_SLKIE_Msk);
 	
 	temporary = CAN_to_init->MCR;
 	temporary &= ~CAN_MCR_INRQ_Msk;
