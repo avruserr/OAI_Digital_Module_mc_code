@@ -391,8 +391,8 @@ void OTG_FS_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 void CAN1_TX_IRQHandler(void)
 {
-	avruser_CAN_transmit_IT_handler(CAN1);
 	avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
+	avruser_CAN_transmit_IT_handler(CAN1);
 }
 
 void CAN1_RX0_IRQHandler(void)
@@ -417,8 +417,8 @@ void CAN1_SCE_IRQHandler(void)
 
 void CAN2_TX_IRQHandler(void)
 {
-	avruser_CAN_transmit_IT_handler(CAN2);
 	avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
+	avruser_CAN_transmit_IT_handler(CAN2);
 }
 
 void CAN2_RX0_IRQHandler(void)

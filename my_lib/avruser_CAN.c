@@ -113,10 +113,10 @@ void avruser_CAN_Pull_Settings(CAN_TypeDef* CAN_to_read, type_can_settings_struc
 	if (CAN_to_read->BTR & CAN_BTR_LBKM_Msk) targetStruct->LBKM = 1;
 	else targetStruct->LBKM = 0;
 	
-	targetStruct->BRP = ((CAN_to_read->BTR) & CAN_BTR_BRP_Msk) >> CAN_BTR_BRP_Pos;
-	targetStruct->TS1 = ((CAN_to_read->BTR) & CAN_BTR_TS1_Msk) >> CAN_BTR_TS1_Pos;
-	targetStruct->TS2 = ((CAN_to_read->BTR) & CAN_BTR_TS2_Msk) >> CAN_BTR_TS2_Pos;
-	targetStruct->SJW = ((CAN_to_read->BTR) & CAN_BTR_SJW_Msk) >> CAN_BTR_SJW_Pos;
+	targetStruct->BRP = (((CAN_to_read->BTR) & CAN_BTR_BRP_Msk) >> CAN_BTR_BRP_Pos) + 1;
+	targetStruct->TS1 = (((CAN_to_read->BTR) & CAN_BTR_TS1_Msk) >> CAN_BTR_TS1_Pos) + 1;
+	targetStruct->TS2 = (((CAN_to_read->BTR) & CAN_BTR_TS2_Msk) >> CAN_BTR_TS2_Pos) + 1;
+	targetStruct->SJW = (((CAN_to_read->BTR) & CAN_BTR_SJW_Msk) >> CAN_BTR_SJW_Pos) + 1;
 }
 
 void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct)

@@ -311,7 +311,15 @@ int main(void)
 	avruser_CAN_update_FIFO_length(CAN2_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[0]));
 	avruser_CAN_update_FIFO_length(CAN2_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[1]));
 	
+	NVIC_EnableIRQ(CAN1_TX_IRQn);
+	NVIC_EnableIRQ(CAN1_RX0_IRQn);
+	NVIC_EnableIRQ(CAN1_RX1_IRQn);
+	NVIC_EnableIRQ(CAN1_SCE_IRQn);
 	
+	NVIC_EnableIRQ(CAN2_TX_IRQn);
+	NVIC_EnableIRQ(CAN2_RX0_IRQn);
+	NVIC_EnableIRQ(CAN2_RX1_IRQn);
+	NVIC_EnableIRQ(CAN2_SCE_IRQn);
 	
 
 	//HAL_UART_Abort_IT(&huart2);
