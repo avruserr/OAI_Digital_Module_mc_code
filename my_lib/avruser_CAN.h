@@ -157,8 +157,6 @@ typedef struct
 }
 FIFO_Typedef;
 
-typedef FIFO_Typedef Error_FIFO_Typedef;
-
 FIFO_Typedef* FIFO_Create(void);
 void FIFO_Delete(FIFO_Typedef* deleteFIFO);
 void FIFO_Push(void* pushDataPointer, FIFO_Typedef* pushFIFO);

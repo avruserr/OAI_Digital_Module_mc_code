@@ -122,7 +122,7 @@ void avruser_CAN_Pull_Settings(CAN_TypeDef* CAN_to_read, type_can_settings_struc
 	targetStruct->SJW = ((CAN_to_read->BTR) & CAN_BTR_SJW_Msk) >> CAN_BTR_SJW_Pos;
 }
 
-void avruser_CAN_FilterInit(type_can_filter_settings_struct* filterInitStruct)
+void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct)
 {
 	if ((filterInitStruct->filterNumber) != 28)
 	{
@@ -155,23 +155,26 @@ void avruser_CAN_FilterInit(type_can_filter_settings_struct* filterInitStruct)
 	}
 	
 	CAN1->FMR &= ~CAN_FMR_FINIT_Msk;
-	
-	filterInitStruct->CAN2SB = (((CAN1->FMR) & CAN_FMR_CAN2SB_Msk) >> CAN_FMR_CAN2SB_Pos);
-	filterInitStruct->CAN_FM1R_L = (uint16_t)(CAN1->FM1R & 0xFFFF);
-	filterInitStruct->CAN_FM1R_H = (uint16_t)((CAN1->FM1R >> 16) & 0xFFFF);
-	filterInitStruct->CAN_FS1R_L = (uint16_t)(CAN1->FS1R & 0xFFFF);
-	filterInitStruct->CAN_FS1R_H = (uint16_t)((CAN1->FS1R >> 16) & 0xFFFF);
-	filterInitStruct->CAN_FFA1R_L = (uint16_t)(CAN1->FFA1R & 0xFFFF);
-	filterInitStruct->CAN_FFA1R_H = (uint16_t)((CAN1->FFA1R >> 16) & 0xFFFF);
-	filterInitStruct->CAN_FA1R_L = (uint16_t)(CAN1->FA1R & 0xFFFF);
-	filterInitStruct->CAN_FA1R_H = (uint16_t)((CAN1->FA1R >> 16) & 0xFFFF);
+}
+
+void avruser_CAN_Pull_Filter_Settings(type_can_filter_settings_struct* targetStruct)
+{
+	targetStruct->CAN2SB = (((CAN1->FMR) & CAN_FMR_CAN2SB_Msk) >> CAN_FMR_CAN2SB_Pos);
+	targetStruct->CAN_FM1R_L = (uint16_t)(CAN1->FM1R & 0xFFFF);
+	targetStruct->CAN_FM1R_H = (uint16_t)((CAN1->FM1R >> 16) & 0xFFFF);
+	targetStruct->CAN_FS1R_L = (uint16_t)(CAN1->FS1R & 0xFFFF);
+	targetStruct->CAN_FS1R_H = (uint16_t)((CAN1->FS1R >> 16) & 0xFFFF);
+	targetStruct->CAN_FFA1R_L = (uint16_t)(CAN1->FFA1R & 0xFFFF);
+	targetStruct->CAN_FFA1R_H = (uint16_t)((CAN1->FFA1R >> 16) & 0xFFFF);
+	targetStruct->CAN_FA1R_L = (uint16_t)(CAN1->FA1R & 0xFFFF);
+	targetStruct->CAN_FA1R_H = (uint16_t)((CAN1->FA1R >> 16) & 0xFFFF);
 	
 	for (uint8_t filterBankIndex = 0; filterBankIndex < 28; filterBankIndex++)
 	{
-		filterInitStruct->CAN_FR[4*filterBankIndex + 0] = (uint16_t)(((CAN1->sFilterRegister[filterBankIndex]).FR1) & 0xFFFF);
-		filterInitStruct->CAN_FR[4*filterBankIndex + 1] = (uint16_t)((((CAN1->sFilterRegister[filterBankIndex]).FR1) >> 16) & 0xFFFF);
-		filterInitStruct->CAN_FR[4*filterBankIndex + 2] = (uint16_t)(((CAN1->sFilterRegister[filterBankIndex]).FR2) & 0xFFFF);
-		filterInitStruct->CAN_FR[4*filterBankIndex + 3] = (uint16_t)((((CAN1->sFilterRegister[filterBankIndex]).FR2) >> 16) & 0xFFFF);
+		targetStruct->CAN_FR[4*filterBankIndex + 0] = (uint16_t)(((CAN1->sFilterRegister[filterBankIndex]).FR1) & 0xFFFF);
+		targetStruct->CAN_FR[4*filterBankIndex + 1] = (uint16_t)((((CAN1->sFilterRegister[filterBankIndex]).FR1) >> 16) & 0xFFFF);
+		targetStruct->CAN_FR[4*filterBankIndex + 2] = (uint16_t)(((CAN1->sFilterRegister[filterBankIndex]).FR2) & 0xFFFF);
+		targetStruct->CAN_FR[4*filterBankIndex + 3] = (uint16_t)((((CAN1->sFilterRegister[filterBankIndex]).FR2) >> 16) & 0xFFFF);
 	}
 }
 
@@ -291,6 +294,7 @@ void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 
 void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From, FIFO_Overrun_Flag_Typedef* overrunFlag)
 {
+	if (FIFO_Get_Length(FIFO_To_Get_From) == 0) return;
 	FIFO_Frame_Data_Typedef frame = *(FIFO_Frame_Data_Typedef*)FIFO_Pop(FIFO_To_Get_From);
 	//destinationStruct->numberOfFrames = FIFO_Get_Length(FIFO_To_Get_From);
 	destinationStruct->ID_L = (uint16_t)(frame.ID & 0xFFFF);
@@ -315,7 +319,7 @@ void avruser_CAN_update_status_struct(CAN_TypeDef* CAN_to_read, type_can_status_
 	destinationStruct->ALST = (uint16_t)(((TSReg & CAN_TSR_ALST0_Msk) >> (CAN_TSR_ALST0_Pos - 0)) | ((TSReg & CAN_TSR_ALST1_Msk) >> (CAN_TSR_ALST1_Pos - 1)) | ((TSReg & CAN_TSR_ALST2_Msk) >> (CAN_TSR_ALST2_Pos - 2)));
 	destinationStruct->TXOK = (uint16_t)(((TSReg & CAN_TSR_TXOK0_Msk) >> (CAN_TSR_TXOK0_Pos - 0)) | ((TSReg & CAN_TSR_TXOK1_Msk) >> (CAN_TSR_TXOK1_Pos - 1)) | ((TSReg & CAN_TSR_TXOK2_Msk) >> (CAN_TSR_TXOK2_Pos - 2)));
 	destinationStruct->RQCP = (uint16_t)(((TSReg & CAN_TSR_RQCP0_Msk) >> (CAN_TSR_RQCP0_Pos - 0)) | ((TSReg & CAN_TSR_RQCP1_Msk) >> (CAN_TSR_RQCP1_Pos - 1)) | ((TSReg & CAN_TSR_RQCP2_Msk) >> (CAN_TSR_RQCP2_Pos - 2)));
-	destinationStruct->softwareFIFO_Overrun = overrunFlags[0] | (overrunFlags[1] << 1);
+	if (overrunFlags != NULL) destinationStruct->softwareFIFO_Overrun = overrunFlags[0] | (overrunFlags[1] << 1);
 	destinationStruct->REC = (CAN_to_read->ESR & CAN_ESR_REC_Msk) >> CAN_ESR_REC_Pos;
 	destinationStruct->TEC = (CAN_to_read->ESR & CAN_ESR_TEC_Msk) >> CAN_ESR_TEC_Pos;
 	destinationStruct->BOFF = (CAN_to_read->ESR & CAN_ESR_BOFF_Msk) >> CAN_ESR_BOFF_Pos;
@@ -386,7 +390,7 @@ void avruser_CAN_transmit_IT_handler(CAN_TypeDef* CAN_to_handle)
 	if (CAN_to_handle->TSR & CAN_TSR_RQCP2_Msk) CAN_to_handle->TSR |= CAN_TSR_RQCP2_Msk;
 }
 
-void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, Error_FIFO_Typedef* FIFO_to_push)
+void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, FIFO_Typedef* FIFO_to_push)
 {
 	if (CAN_to_handle->MSR & CAN_MSR_ERRI_Msk)
 	{
@@ -401,7 +405,7 @@ void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, Error_FIFO
 	}
 }
 
-void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, Error_FIFO_Typedef* FIFO_To_Get_From)
+void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From)
 {
 	if (FIFO_Get_Length(FIFO_To_Get_From) > 0)
 	{
