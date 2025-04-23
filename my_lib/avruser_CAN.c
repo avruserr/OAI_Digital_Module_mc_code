@@ -77,7 +77,7 @@ canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struc
 	
 	for(int32_t att = NUMBER_OF_ATTEMPTS; ; att--)
 	{
-		if (~(CAN_to_init->MSR | ~CAN_MSR_INAK_Msk) && ((initStruct->SLEEP != 0) == ((CAN_to_init->MSR & CAN_MSR_SLAK_Msk) != 0))) //waiting for CAN to switch to initialization mode
+		if (~(CAN_to_init->MSR | ~CAN_MSR_INAK_Msk) && ((initStruct->SLEEP != 0) == ((CAN_to_init->MSR & CAN_MSR_SLAK_Msk) != 0))) //waiting for CAN to switch to normal/sleep mode
 		{
 			break;
 		}
@@ -421,4 +421,44 @@ void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, FIF
 void avruser_CAN_update_FIFO_length(FIFO_Typedef* lengthFIFO, type_can_receive_struct* targetStruct)
 {
 	targetStruct->numberOfFrames = FIFO_Get_Length(lengthFIFO);
+}
+
+canInitResult avruser_CAN_Recover_Bus_Off(CAN_TypeDef* CAN_to_recover)
+{
+	uint8_t sleepMode = (CAN_to_recover->MSR & CAN_MSR_SLAK_Msk) ? 1 : 0;
+	uint32_t temporary = CAN_to_recover->MCR;
+	temporary |= CAN_MCR_INRQ_Msk;
+	temporary &= ~CAN_MCR_SLEEP_Msk;
+	CAN_to_recover->MCR = temporary; // requesting CAN to switch to initialization mode
+	
+	for(int32_t att = NUMBER_OF_ATTEMPTS; ; att--)
+	{
+		if ((CAN_to_recover->MSR & CAN_MSR_INAK_Msk) && ~(CAN_to_recover->MSR | ~CAN_MSR_SLAK_Msk)) //waiting for CAN to switch to initialization mode
+		{
+			break;
+		}
+		if (att == 0)
+		{
+			return canInitError;
+		}
+	}
+	
+	temporary = CAN_to_recover->MCR;
+	temporary &= ~CAN_MCR_INRQ_Msk;
+	if (sleepMode) temporary |= CAN_MCR_SLEEP_Msk;
+	CAN_to_recover->MCR = temporary; // requesting CAN to switch to normal/sleep mode
+	
+	for(int32_t att = NUMBER_OF_ATTEMPTS; ; att--)
+	{
+		if (~(CAN_to_recover->MSR | ~CAN_MSR_INAK_Msk) && ((sleepMode) == ((CAN_to_recover->MSR & CAN_MSR_SLAK_Msk) != 0))) //waiting for CAN to switch to normal/sleep mode
+		{
+			break;
+		}
+		if (att == 0)
+		{
+			return canInitError;
+		}
+	}
+	
+	return canInitSuccess;
 }

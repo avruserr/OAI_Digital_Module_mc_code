@@ -779,6 +779,94 @@ int main(void)
 			modbus_RX_TX_handler(&mb_data_union.mb_data, &vcp);
 			//vcp.rx_position = 0;
 		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN1_settings_struct.scaler)
+		{
+			avruser_CAN_Init(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_settings_struct));
+			avruser_CAN_Pull_Settings(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_settings_struct));
+			avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
+			
+			mb_data_union.mb_data_named.mb_CAN1_settings_struct.scaler = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN2_settings_struct.scaler)
+		{
+			avruser_CAN_Init(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_settings_struct));
+			avruser_CAN_Pull_Settings(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_settings_struct));
+			avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
+			
+			mb_data_union.mb_data_named.mb_CAN2_settings_struct.scaler = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN12_filter_settings_struct.scaler)
+		{
+			avruser_CAN_Filter_Init(&(mb_data_union.mb_data_named.mb_CAN12_filter_settings_struct));
+			avruser_CAN_Pull_Filter_Settings(&(mb_data_union.mb_data_named.mb_CAN12_filter_settings_struct));
+			
+			mb_data_union.mb_data_named.mb_CAN12_filter_settings_struct.scaler = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN1_control_struct.receive_ack_0)
+		{
+			avruser_CAN_Get_Frame(&(mb_data_union.mb_data_named.mb_CAN1_receive_struct[0]), CAN1_FIFO[0], &(CAN1_FIFO_Overrun[0]));
+			avruser_CAN_update_FIFO_length(CAN1_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN1_receive_struct[0]));
+			
+			mb_data_union.mb_data_named.mb_CAN1_control_struct.receive_ack_0 = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN1_control_struct.receive_ack_1)
+		{
+			avruser_CAN_Get_Frame(&(mb_data_union.mb_data_named.mb_CAN1_receive_struct[1]), CAN1_FIFO[1], &(CAN1_FIFO_Overrun[1]));
+			avruser_CAN_update_FIFO_length(CAN1_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN1_receive_struct[1]));
+			
+			mb_data_union.mb_data_named.mb_CAN1_control_struct.receive_ack_1 = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN1_control_struct.error_ack)
+		{
+			avruser_CAN_get_error_message(&(mb_data_union.mb_data_named.mb_CAN1_error_struct), CAN1_Errors_FIFO);
+			
+			mb_data_union.mb_data_named.mb_CAN1_control_struct.error_ack = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN1_control_struct.busOffRecover)
+		{
+			avruser_CAN_Recover_Bus_Off(CAN1);
+			avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
+			
+			mb_data_union.mb_data_named.mb_CAN1_control_struct.busOffRecover = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN2_control_struct.receive_ack_0)
+		{
+			avruser_CAN_Get_Frame(&(mb_data_union.mb_data_named.mb_CAN2_receive_struct[0]), CAN2_FIFO[0], &(CAN2_FIFO_Overrun[0]));
+			avruser_CAN_update_FIFO_length(CAN2_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[0]));
+			
+			mb_data_union.mb_data_named.mb_CAN2_control_struct.receive_ack_0 = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN2_control_struct.receive_ack_1)
+		{
+			avruser_CAN_Get_Frame(&(mb_data_union.mb_data_named.mb_CAN2_receive_struct[1]), CAN2_FIFO[1], &(CAN2_FIFO_Overrun[1]));
+			avruser_CAN_update_FIFO_length(CAN2_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[1]));
+			
+			mb_data_union.mb_data_named.mb_CAN2_control_struct.receive_ack_1 = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN2_control_struct.error_ack)
+		{
+			avruser_CAN_get_error_message(&(mb_data_union.mb_data_named.mb_CAN2_error_struct), CAN2_Errors_FIFO);
+			
+			mb_data_union.mb_data_named.mb_CAN2_control_struct.error_ack = 0;
+		}
+		
+		if (mb_data_union.mb_data_named.mb_CAN2_control_struct.busOffRecover)
+		{
+			avruser_CAN_Recover_Bus_Off(CAN2);
+			avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
+			
+			mb_data_union.mb_data_named.mb_CAN2_control_struct.busOffRecover = 0;
+		}
   }
   
   /* USER CODE END 3 */

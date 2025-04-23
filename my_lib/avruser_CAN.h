@@ -183,5 +183,6 @@ void avruser_CAN_transmit_IT_handler(CAN_TypeDef* CAN_to_handle);
 void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, FIFO_Typedef* FIFO_to_push);
 void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From);
 void avruser_CAN_update_FIFO_length(FIFO_Typedef* lengthFIFO, type_can_receive_struct* targetStruct);
+canInitResult avruser_CAN_Recover_Bus_Off(CAN_TypeDef* CAN_to_recover);
 
 #endif
