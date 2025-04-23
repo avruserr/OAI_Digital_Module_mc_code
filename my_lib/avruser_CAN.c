@@ -139,10 +139,10 @@ void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct)
 		CAN1->FMR &= ~CAN_FMR_CAN2SB_Msk;
 		CAN1->FMR |= ((filterInitStruct->CAN2SB) << CAN_FMR_CAN2SB_Pos);
 		
-		CAN1->FM1R = (filterInitStruct->CAN_FM1R_L + ((filterInitStruct->CAN_FM1R_H) << 16));
-		CAN1->FS1R = (filterInitStruct->CAN_FS1R_L + ((filterInitStruct->CAN_FS1R_H) << 16));
-		CAN1->FFA1R = (filterInitStruct->CAN_FFA1R_L + ((filterInitStruct->CAN_FFA1R_H) << 16));
-		CAN1->FA1R = (filterInitStruct->CAN_FA1R_L + ((filterInitStruct->CAN_FA1R_H) << 16));
+		CAN1->FM1R = 0x0FFFFFFF & (filterInitStruct->CAN_FM1R_L + ((filterInitStruct->CAN_FM1R_H) << 16));
+		CAN1->FS1R = 0x0FFFFFFF & (filterInitStruct->CAN_FS1R_L + ((filterInitStruct->CAN_FS1R_H) << 16));
+		CAN1->FFA1R = 0x0FFFFFFF & (filterInitStruct->CAN_FFA1R_L + ((filterInitStruct->CAN_FFA1R_H) << 16));
+		CAN1->FA1R = 0x0FFFFFFF & (filterInitStruct->CAN_FA1R_L + ((filterInitStruct->CAN_FA1R_H) << 16));
 		
 		for (uint8_t filterBankIndex = 0; filterBankIndex < 28; filterBankIndex++)
 		{
@@ -327,11 +327,22 @@ void avruser_CAN_request_transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t 
 {
 	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR = 0;
 	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR = 0;
+	if (transmissionData->IDE)
+	{
+		transmissionData->ID_L &= 0xFFFF;
+		transmissionData->ID_H &= 0x1FFF;
+	}
+	else
+	{
+		transmissionData->ID_L &= 0x07FF;
+		transmissionData->ID_H &= 0x0000;
+	}
+	transmissionData->DLC &= 0x000F;
 	if (mailboxNumber == 0)
 	{
 		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI0R_EXID_Pos : CAN_TI0R_STID_Pos);
-		if ((transmissionData->IDE))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_IDE_Msk;
-		if ((transmissionData->RTR))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_RTR_Msk;
+		if ((transmissionData->IDE)) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_IDE_Msk;
+		if ((transmissionData->RTR)) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_RTR_Msk;
 		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT0R_DLC_Pos);
 	}
 	else if (mailboxNumber == 1)

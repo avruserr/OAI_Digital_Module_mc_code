@@ -266,6 +266,53 @@ int main(void)
 	
 	CAN1_Errors_FIFO = FIFO_Create();
 	CAN2_Errors_FIFO = FIFO_Create();
+	
+	type_can_settings_struct defaultCANinitStruct;
+	defaultCANinitStruct.DBF = 0;
+	defaultCANinitStruct.ABOM = 1;
+	defaultCANinitStruct.AWUM = 0;
+	defaultCANinitStruct.NART = 1;
+	defaultCANinitStruct.RFLM = 1;
+	defaultCANinitStruct.TXFP = 1;
+	defaultCANinitStruct.SLEEP = 0;
+	defaultCANinitStruct.SILM = 0;
+	defaultCANinitStruct.LBKM = 0;
+	defaultCANinitStruct.BRP = 3;
+	defaultCANinitStruct.TS1 = 10;
+	defaultCANinitStruct.TS2 = 3;
+	defaultCANinitStruct.SJW = 3;
+	avruser_CAN_Init(CAN1, &defaultCANinitStruct);
+	avruser_CAN_Pull_Settings(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_settings_struct));
+	avruser_CAN_Init(CAN2, &defaultCANinitStruct);
+	avruser_CAN_Pull_Settings(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_settings_struct));
+	
+	type_can_filter_settings_struct defaultFilterSettings;
+	defaultFilterSettings.filterNumber = 28;
+	defaultFilterSettings.CAN2SB = 14;
+	defaultFilterSettings.CAN_FM1R_L = 0;
+	defaultFilterSettings.CAN_FM1R_H = 0;
+	defaultFilterSettings.CAN_FS1R_L = 0;
+	defaultFilterSettings.CAN_FS1R_H = 1 << (20 - 16);
+	defaultFilterSettings.CAN_FFA1R_L = 0;
+	defaultFilterSettings.CAN_FFA1R_H = 0;
+	defaultFilterSettings.CAN_FA1R_L = 0;
+	defaultFilterSettings.CAN_FA1R_H = 1 << (20 - 16);
+	for (uint8_t frIndex = 0; frIndex < 112; frIndex++)
+	{
+		defaultFilterSettings.CAN_FR[frIndex] = 0;
+	}
+	avruser_CAN_Filter_Init(&defaultFilterSettings);
+	avruser_CAN_Pull_Filter_Settings(&(mb_data_union.mb_data_named.mb_CAN12_filter_settings_struct));
+	
+	avruser_CAN_get_error_message(&(mb_data_union.mb_data_named.mb_CAN1_error_struct), CAN1_Errors_FIFO);
+	avruser_CAN_get_error_message(&(mb_data_union.mb_data_named.mb_CAN2_error_struct), CAN2_Errors_FIFO);
+	avruser_CAN_update_FIFO_length(CAN1_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN1_receive_struct[0]));
+	avruser_CAN_update_FIFO_length(CAN1_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN1_receive_struct[1]));
+	avruser_CAN_update_FIFO_length(CAN2_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[0]));
+	avruser_CAN_update_FIFO_length(CAN2_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[1]));
+	
+	
+	
 
 	//HAL_UART_Abort_IT(&huart2);
 	//MY_USART2_UART_Init(&mb_uart2_setting);                                                         
