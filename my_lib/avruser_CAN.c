@@ -190,30 +190,31 @@ void FIFO_Delete(FIFO_Typedef* deleteFIFO)
 	{
 		FIFO_Element_Typedef* deletePointer = tempPointer;
 		tempPointer = tempPointer->next;
+		free(deletePointer->data);
 		free(deletePointer);
 	}
 	free(deleteFIFO);
 }
 
-void FIFO_Push(FIFO_Element_Data_Typedef pushData, FIFO_Typedef* pushFIFO)
+void FIFO_Push(void* pushDataPointer, FIFO_Typedef* pushFIFO)
 {
 	if (pushFIFO == NULL) return;
 	FIFO_Element_Typedef* oldFI = pushFIFO->FI;
 	pushFIFO->FI = (FIFO_Element_Typedef*)malloc(sizeof(FIFO_Element_Typedef));
-	pushFIFO->FI->Data = pushData;
+	pushFIFO->FI->data = pushDataPointer;
 	pushFIFO->FI->next = oldFI;
 }
 
-FIFO_Element_Data_Typedef FIFO_Pop(FIFO_Typedef* popFIFO)
+void* FIFO_Pop(FIFO_Typedef* popFIFO)
 {
-	FIFO_Element_Data_Typedef popData;
+	void* popDataPointer;
 	if (popFIFO != NULL)
 	{
 		if (popFIFO->FI != NULL)
 		{
 			if (popFIFO->FI->next == NULL)
 			{
-				popData = popFIFO->FI->Data;
+				popDataPointer = popFIFO->FI->data;
 				free(popFIFO->FI);
 				popFIFO->FI = NULL;
 			}
@@ -221,13 +222,13 @@ FIFO_Element_Data_Typedef FIFO_Pop(FIFO_Typedef* popFIFO)
 			{
 				FIFO_Element_Typedef* tempPointer = popFIFO->FI;
 				while(tempPointer->next->next != NULL) tempPointer = tempPointer->next;
-				popData = tempPointer->next->Data;
+				popDataPointer = tempPointer->next->data;
 				free(tempPointer->next);
 				tempPointer->next = NULL;
 			}
 		}
 	}
-	return popData;
+	return popDataPointer;
 }
 
 uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO)
@@ -253,7 +254,7 @@ void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 	uint32_t dataLowReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDLR;
 	uint32_t dataHighReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDHR;
 	
-	FIFO_Element_Data_Typedef dataToPush;
+	FIFO_Frame_Data_Typedef dataToPush;
 	
 	if (FIFO_Number == 0)
 	{
@@ -284,13 +285,13 @@ void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 		else (dataToPush.DATA)[byteIndex] = (uint8_t)(0xFF & (dataHighReg >> ((byteIndex - 4)*8)));
 	}
 	
-	if (FIFO_Get_Length(FIFO_to_push) < SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(dataToPush, FIFO_to_push);
+	if (FIFO_Get_Length(FIFO_to_push) < SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(&dataToPush, FIFO_to_push);
 	else *overrunFlag = overrunOccured;
 }
 
 void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From, FIFO_Overrun_Flag_Typedef* overrunFlag)
 {
-	FIFO_Element_Data_Typedef frame = FIFO_Pop(FIFO_To_Get_From);
+	FIFO_Frame_Data_Typedef frame = *(FIFO_Frame_Data_Typedef*)FIFO_Pop(FIFO_To_Get_From);
 	//destinationStruct->numberOfFrames = FIFO_Get_Length(FIFO_To_Get_From);
 	destinationStruct->ID_L = (uint16_t)(frame.ID & 0xFFFF);
 	destinationStruct->ID_H = (uint16_t)((frame.ID & 0xFFFF0000) >> 16);
@@ -390,9 +391,9 @@ void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, Error_FIFO
 	if (CAN_to_handle->MSR & CAN_MSR_ERRI_Msk)
 	{
 		CAN_to_handle->MSR |= CAN_MSR_ERRI_Msk;
-		FIFO_Element_Data_Typedef element_to_push;
+		FIFO_Error_Data_Typedef element_to_push;
 		element_to_push.LEC = ((CAN_to_handle->ESR & CAN_ESR_LEC_Msk) >> CAN_ESR_LEC_Pos);
-		if (FIFO_Get_Length(FIFO_to_push) <= SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(element_to_push, FIFO_to_push);
+		if (FIFO_Get_Length(FIFO_to_push) <= SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(&element_to_push, FIFO_to_push);
 	}
 	if (CAN_to_handle->MSR & CAN_MSR_WKUI_Msk)
 	{
@@ -404,7 +405,7 @@ void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, Err
 {
 	if (FIFO_Get_Length(FIFO_To_Get_From) > 0)
 	{
-		FIFO_Element_Data_Typedef error_element = FIFO_Pop(FIFO_To_Get_From);
+		FIFO_Error_Data_Typedef error_element = *(FIFO_Error_Data_Typedef*)FIFO_Pop(FIFO_To_Get_From);
 		destinationStruct->errorCode = error_element.LEC;
 	}
 	else

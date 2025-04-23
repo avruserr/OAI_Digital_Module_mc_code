@@ -134,13 +134,18 @@ typedef struct
 	uint8_t RTR;
 	uint8_t DLC;
 	uint8_t DATA[8];
+}
+FIFO_Frame_Data_Typedef;
+
+typedef struct 
+{
 	uint8_t LEC;
 }
-FIFO_Element_Data_Typedef;
+FIFO_Error_Data_Typedef;
 
 struct FIFO_Element
 {
-	FIFO_Element_Data_Typedef Data;
+	void* data;
 	struct FIFO_Element* next;
 };
 
@@ -156,8 +161,8 @@ typedef FIFO_Typedef Error_FIFO_Typedef;
 
 FIFO_Typedef* FIFO_Create(void);
 void FIFO_Delete(FIFO_Typedef* deleteFIFO);
-void FIFO_Push(FIFO_Element_Data_Typedef pushData, FIFO_Typedef* pushFIFO);
-FIFO_Element_Data_Typedef FIFO_Pop(FIFO_Typedef* popFIFO);
+void FIFO_Push(void* pushDataPointer, FIFO_Typedef* pushFIFO);
+void* FIFO_Pop(FIFO_Typedef* popFIFO);
 uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO);
 
 typedef enum
