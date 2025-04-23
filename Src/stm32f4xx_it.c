@@ -23,6 +23,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "avruser_CAN.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,7 +71,12 @@ extern TIM_HandleTypeDef htim12;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
-
+extern FIFO_Typedef* CAN1_FIFO[2];
+extern FIFO_Typedef* CAN2_FIFO[2];
+extern FIFO_Typedef* CAN1_Errors_FIFO;
+extern FIFO_Typedef* CAN2_Errors_FIFO;
+extern FIFO_Overrun_Flag_Typedef CAN1_FIFO_Overrun[2];
+extern FIFO_Overrun_Flag_Typedef CAN2_FIFO_Overrun[2];
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -382,42 +388,42 @@ void OTG_FS_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 void CAN1_TX_IRQHandler(void)
 {
-	
+	avruser_CAN_transmit_IT_handler(CAN1);
 }
 
 void CAN1_RX0_IRQHandler(void)
 {
-	
+	avruser_CAN_receive_IT_handler(CAN1, 0, CAN1_FIFO[0], &(CAN1_FIFO_Overrun[0]));
 }
 
 void CAN1_RX1_IRQHandler(void)
 {
-	
+	avruser_CAN_receive_IT_handler(CAN1, 1, CAN1_FIFO[1], &(CAN1_FIFO_Overrun[1]));
 }
 
 void CAN1_SCE_IRQHandler(void)
 {
-	
+	avruser_CAN_status_change_IT_handler(CAN1, CAN1_Errors_FIFO);
 }
 
 void CAN2_TX_IRQHandler(void)
 {
-	
+	avruser_CAN_transmit_IT_handler(CAN2);
 }
 
 void CAN2_RX0_IRQHandler(void)
 {
-	
+	avruser_CAN_receive_IT_handler(CAN2, 0, CAN2_FIFO[0], &(CAN2_FIFO_Overrun[0]));
 }
 
 void CAN2_RX1_IRQHandler(void)
 {
-	
+	avruser_CAN_receive_IT_handler(CAN2, 1, CAN2_FIFO[1], &(CAN1_FIFO_Overrun[1]));
 }
 
 void CAN2_SCE_IRQHandler(void)
 {
-	
+	avruser_CAN_status_change_IT_handler(CAN2, CAN2_Errors_FIFO);
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
