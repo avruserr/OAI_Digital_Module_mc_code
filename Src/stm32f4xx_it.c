@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "avruser_CAN.h"
+#include "modbus_data_formater.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,6 +78,8 @@ extern FIFO_Typedef* CAN1_Errors_FIFO;
 extern FIFO_Typedef* CAN2_Errors_FIFO;
 extern FIFO_Overrun_Flag_Typedef CAN1_FIFO_Overrun[2];
 extern FIFO_Overrun_Flag_Typedef CAN2_FIFO_Overrun[2];
+
+extern type_mb_data_union mb_data_union;
 /* USER CODE END EV */
 
 /******************************************************************************/
