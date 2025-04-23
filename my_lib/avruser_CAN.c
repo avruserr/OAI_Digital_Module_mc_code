@@ -417,3 +417,8 @@ void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, FIF
 		destinationStruct->errorCode = 0;
 	}
 }
+
+void avruser_CAN_update_FIFO_length(FIFO_Typedef* lengthFIFO, type_can_receive_struct* targetStruct)
+{
+	targetStruct->numberOfFrames = FIFO_Get_Length(lengthFIFO);
+}
