@@ -810,6 +810,7 @@ int main(void)
 		{
 			avruser_CAN_Get_Frame(&(mb_data_union.mb_data_named.mb_CAN1_receive_struct[0]), CAN1_FIFO[0], &(CAN1_FIFO_Overrun[0]));
 			avruser_CAN_update_FIFO_length(CAN1_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN1_receive_struct[0]));
+			avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
 			
 			mb_data_union.mb_data_named.mb_CAN1_control_struct.receive_ack_0 = 0;
 		}
@@ -818,6 +819,7 @@ int main(void)
 		{
 			avruser_CAN_Get_Frame(&(mb_data_union.mb_data_named.mb_CAN1_receive_struct[1]), CAN1_FIFO[1], &(CAN1_FIFO_Overrun[1]));
 			avruser_CAN_update_FIFO_length(CAN1_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN1_receive_struct[1]));
+			avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
 			
 			mb_data_union.mb_data_named.mb_CAN1_control_struct.receive_ack_1 = 0;
 		}
@@ -841,6 +843,7 @@ int main(void)
 		{
 			avruser_CAN_Get_Frame(&(mb_data_union.mb_data_named.mb_CAN2_receive_struct[0]), CAN2_FIFO[0], &(CAN2_FIFO_Overrun[0]));
 			avruser_CAN_update_FIFO_length(CAN2_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[0]));
+			avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
 			
 			mb_data_union.mb_data_named.mb_CAN2_control_struct.receive_ack_0 = 0;
 		}
@@ -849,6 +852,7 @@ int main(void)
 		{
 			avruser_CAN_Get_Frame(&(mb_data_union.mb_data_named.mb_CAN2_receive_struct[1]), CAN2_FIFO[1], &(CAN2_FIFO_Overrun[1]));
 			avruser_CAN_update_FIFO_length(CAN2_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[1]));
+			avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
 			
 			mb_data_union.mb_data_named.mb_CAN2_control_struct.receive_ack_1 = 0;
 		}
@@ -866,6 +870,41 @@ int main(void)
 			avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
 			
 			mb_data_union.mb_data_named.mb_CAN2_control_struct.busOffRecover = 0;
+		}
+		
+		for (uint8_t mailboxIndex = 0; mailboxIndex < 3; mailboxIndex++)
+		{
+			if (mb_data_union.mb_data_named.mb_CAN1_transmit_struct[mailboxIndex].TXRQ)
+			{
+				avruser_CAN_request_transmittion(CAN1, mailboxIndex, &(mb_data_union.mb_data_named.mb_CAN1_transmit_struct[mailboxIndex]));
+				avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
+				
+				mb_data_union.mb_data_named.mb_CAN1_transmit_struct[mailboxIndex].TXRQ = 0;
+			}
+			
+			if (mb_data_union.mb_data_named.mb_CAN2_transmit_struct[mailboxIndex].TXRQ)
+			{
+				avruser_CAN_request_transmittion(CAN2, mailboxIndex, &(mb_data_union.mb_data_named.mb_CAN2_transmit_struct[mailboxIndex]));
+				avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
+				
+				mb_data_union.mb_data_named.mb_CAN2_transmit_struct[mailboxIndex].TXRQ = 0;
+			}
+			
+			if (mb_data_union.mb_data_named.mb_CAN1_transmit_struct[mailboxIndex].ABRQ)
+			{
+				avruser_CAN_request_abort(CAN1, mailboxIndex);
+				avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
+				
+				mb_data_union.mb_data_named.mb_CAN1_transmit_struct[mailboxIndex].ABRQ = 0;
+			}
+			
+			if (mb_data_union.mb_data_named.mb_CAN2_transmit_struct[mailboxIndex].ABRQ)
+			{
+				avruser_CAN_request_abort(CAN2, mailboxIndex);
+				avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
+				
+				mb_data_union.mb_data_named.mb_CAN2_transmit_struct[mailboxIndex].ABRQ = 0;
+			}
 		}
   }
   
