@@ -272,7 +272,7 @@ void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Type
 	}
 }
 
-void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef** FIFO_to_read_overrun)
+void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef* FIFO_to_read_overrun)
 {
 	destinationStruct->mode = (uint16_t)((CAN_to_read->MSR & (CAN_MSR_SLAK_Msk | CAN_MSR_INAK_Msk)) >> CAN_MSR_INAK_Pos);
 	uint32_t TSReg = CAN_to_read->TSR;
@@ -281,7 +281,7 @@ void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_
 	destinationStruct->ALST = (uint16_t)(((TSReg & CAN_TSR_ALST0_Msk) >> (CAN_TSR_ALST0_Pos - 0)) | ((TSReg & CAN_TSR_ALST1_Msk) >> (CAN_TSR_ALST1_Pos - 1)) | ((TSReg & CAN_TSR_ALST2_Msk) >> (CAN_TSR_ALST2_Pos - 2)));
 	destinationStruct->TXOK = (uint16_t)(((TSReg & CAN_TSR_TXOK0_Msk) >> (CAN_TSR_TXOK0_Pos - 0)) | ((TSReg & CAN_TSR_TXOK1_Msk) >> (CAN_TSR_TXOK1_Pos - 1)) | ((TSReg & CAN_TSR_TXOK2_Msk) >> (CAN_TSR_TXOK2_Pos - 2)));
 	destinationStruct->RQCP = (uint16_t)(((TSReg & CAN_TSR_RQCP0_Msk) >> (CAN_TSR_RQCP0_Pos - 0)) | ((TSReg & CAN_TSR_RQCP1_Msk) >> (CAN_TSR_RQCP1_Pos - 1)) | ((TSReg & CAN_TSR_RQCP2_Msk) >> (CAN_TSR_RQCP2_Pos - 2)));
-	destinationStruct->softwareFIFO_Overrun = (FIFO_to_read_overrun[0]->overrunFlag) | ((FIFO_to_read_overrun[1]->overrunFlag) << 1);
+	destinationStruct->softwareFIFO_Overrun = (FIFO_to_read_overrun[0].overrunFlag) | ((FIFO_to_read_overrun[1].overrunFlag) << 1);
 	destinationStruct->REC = (uint16_t)((CAN_to_read->ESR & CAN_ESR_REC_Msk) >> CAN_ESR_REC_Pos);
 	destinationStruct->TEC = (uint16_t)((CAN_to_read->ESR & CAN_ESR_TEC_Msk) >> CAN_ESR_TEC_Pos);
 	destinationStruct->BOFF = (uint16_t)((CAN_to_read->ESR & CAN_ESR_BOFF_Msk) >> CAN_ESR_BOFF_Pos);
@@ -342,7 +342,7 @@ void avruser_CAN_Request_Transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t 
 	}
 }
 
-void avruser_CAN_request_abort(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber)
+void avruser_CAN_Request_Abort(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber)
 {
 	switch (mailboxNumber)
 	{

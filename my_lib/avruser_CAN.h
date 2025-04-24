@@ -4,7 +4,7 @@
 #include "main.h"
 
 #define NUMBER_OF_ATTEMPTS 100000
-#define SOFTWARE_FIFO_SIZE 1000
+#define SOFTWARE_FIFO_SIZE 200
 
 typedef enum
 {
@@ -162,7 +162,7 @@ void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct);
 void avruser_CAN_Pull_Filter_Settings(type_can_filter_settings_struct* targetStruct);
 void avruser_CAN_Receive_IT_Handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push);
 void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From);
-void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef** FIFO_to_read_overrun);
+void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef* FIFO_to_read_overrun);
 void avruser_CAN_Request_Transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber, type_can_transmit_struct* transmissionData);
 void avruser_CAN_Request_Abort(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber);
 void avruser_CAN_Transmit_IT_Handler(CAN_TypeDef* CAN_to_handle);

@@ -72,12 +72,10 @@ extern TIM_HandleTypeDef htim12;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
-extern FIFO_Typedef* CAN1_FIFO[2];
-extern FIFO_Typedef* CAN2_FIFO[2];
-extern FIFO_Typedef* CAN1_Errors_FIFO;
-extern FIFO_Typedef* CAN2_Errors_FIFO;
-extern FIFO_Overrun_Flag_Typedef CAN1_FIFO_Overrun[2];
-extern FIFO_Overrun_Flag_Typedef CAN2_FIFO_Overrun[2];
+extern FIFO_Typedef CAN1_FIFO[2];
+extern FIFO_Typedef CAN2_FIFO[2];
+extern FIFO_Typedef CAN1_Errors_FIFO;
+extern FIFO_Typedef CAN2_Errors_FIFO;
 
 extern type_mb_data_union mb_data_union;
 /* USER CODE END EV */
@@ -391,54 +389,54 @@ void OTG_FS_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 void CAN1_TX_IRQHandler(void)
 {
-	avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
-	avruser_CAN_transmit_IT_handler(CAN1);
+	avruser_CAN_Update_Status_Struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO);
+	avruser_CAN_Transmit_IT_Handler(CAN1);
 }
 
 void CAN1_RX0_IRQHandler(void)
 {
-	avruser_CAN_receive_IT_handler(CAN1, 0, CAN1_FIFO[0], &(CAN1_FIFO_Overrun[0]));
-	avruser_CAN_update_FIFO_length(CAN1_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN1_receive_struct[0]));
-	avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
+	avruser_CAN_Receive_IT_Handler(CAN1, 0, &(CAN1_FIFO[0]));
+	avruser_CAN_Update_FIFO_Length(&(mb_data_union.mb_data_named.mb_CAN1_receive_struct[0]), &(CAN1_FIFO[0]));
+	avruser_CAN_Update_Status_Struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO);
 }
 
 void CAN1_RX1_IRQHandler(void)
 {
-	avruser_CAN_receive_IT_handler(CAN1, 1, CAN1_FIFO[1], &(CAN1_FIFO_Overrun[1]));
-	avruser_CAN_update_FIFO_length(CAN1_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN1_receive_struct[1]));
-	avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
+	avruser_CAN_Receive_IT_Handler(CAN1, 1, &(CAN1_FIFO[1]));
+	avruser_CAN_Update_FIFO_Length(&(mb_data_union.mb_data_named.mb_CAN1_receive_struct[1]), &(CAN1_FIFO[1]));
+	avruser_CAN_Update_Status_Struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO);
 }
 
 void CAN1_SCE_IRQHandler(void)
 {
-	avruser_CAN_status_change_IT_handler(CAN1, CAN1_Errors_FIFO);
-	avruser_CAN_update_status_struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO_Overrun);
+	avruser_CAN_Status_Change_IT_Handler(CAN1, &CAN1_Errors_FIFO);
+	avruser_CAN_Update_Status_Struct(CAN1, &(mb_data_union.mb_data_named.mb_CAN1_status_struct), CAN1_FIFO);
 }
 
 void CAN2_TX_IRQHandler(void)
 {
-	avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
-	avruser_CAN_transmit_IT_handler(CAN2);
+	avruser_CAN_Update_Status_Struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO);
+	avruser_CAN_Transmit_IT_Handler(CAN2);
 }
 
 void CAN2_RX0_IRQHandler(void)
 {
-	avruser_CAN_receive_IT_handler(CAN2, 0, CAN2_FIFO[0], &(CAN2_FIFO_Overrun[0]));
-	avruser_CAN_update_FIFO_length(CAN2_FIFO[0], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[0]));
-	avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
+	avruser_CAN_Receive_IT_Handler(CAN2, 0, &(CAN2_FIFO[0]));
+	avruser_CAN_Update_FIFO_Length(&(mb_data_union.mb_data_named.mb_CAN2_receive_struct[0]), &(CAN2_FIFO[0]));
+	avruser_CAN_Update_Status_Struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO);
 }
 
 void CAN2_RX1_IRQHandler(void)
 {
-	avruser_CAN_receive_IT_handler(CAN2, 1, CAN2_FIFO[1], &(CAN2_FIFO_Overrun[1]));
-	avruser_CAN_update_FIFO_length(CAN2_FIFO[1], &(mb_data_union.mb_data_named.mb_CAN2_receive_struct[1]));
-	avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
+	avruser_CAN_Receive_IT_Handler(CAN2, 1, &(CAN2_FIFO[1]));
+	avruser_CAN_Update_FIFO_Length(&(mb_data_union.mb_data_named.mb_CAN2_receive_struct[1]), &(CAN2_FIFO[1]));
+	avruser_CAN_Update_Status_Struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO);
 }
 
 void CAN2_SCE_IRQHandler(void)
 {
-	avruser_CAN_status_change_IT_handler(CAN2, CAN2_Errors_FIFO);
-	avruser_CAN_update_status_struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO_Overrun);
+	avruser_CAN_Status_Change_IT_Handler(CAN2, &CAN2_Errors_FIFO);
+	avruser_CAN_Update_Status_Struct(CAN2, &(mb_data_union.mb_data_named.mb_CAN2_status_struct), CAN2_FIFO);
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
