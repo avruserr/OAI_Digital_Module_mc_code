@@ -37,7 +37,7 @@ void avruser_CAN_Receive_IT_Handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_to_get_from)
 Выталкивает кадр из очереди FIFO_to_get_from и помещает его в destinationStruct. Если очередь пуста, содержимое destinationStruct не меняется.
 
-void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef** FIFO_to_read_overrun)
+void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef* FIFO_to_read_overrun)
 Обновляет данные в структуре статуса контроллера CAN_to_read в соответствии с его регистрами CAN_MSR, CAN_TSR, CAN_ESR и флагами переполнения массива из двух очередей FIFO_to_read_overrun.
 
 void avruser_CAN_Request_Transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber, type_can_transmit_struct* transmissionData)

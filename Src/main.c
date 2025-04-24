@@ -263,6 +263,7 @@ int main(void)
 	
 	FIFO_Reset(&CAN1_Errors_FIFO);
 	FIFO_Reset(&CAN2_Errors_FIFO);
+	while(CAN1_Errors_FIFO.emptyFlag == 0);
 	
 	type_can_settings_struct defaultCANinitStruct;
 	defaultCANinitStruct.DBF = 0;

@@ -4,7 +4,7 @@
 #include "main.h"
 
 #define NUMBER_OF_ATTEMPTS 100000
-#define SOFTWARE_FIFO_SIZE 200
+#define SOFTWARE_FIFO_SIZE 100
 
 typedef enum
 {
