@@ -59,10 +59,10 @@ canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struc
 	else if (initStruct->SJW < 1) initStruct->SJW = 1;
 	
 	CAN_to_init->BTR &= ~(CAN_BTR_BRP_Msk | CAN_BTR_TS1_Msk | CAN_BTR_TS2_Msk | CAN_BTR_SJW_Msk);
-	CAN_to_init->BTR |= (((initStruct->BRP) - 1) << CAN_BTR_BRP_Pos);
-	CAN_to_init->BTR |= (((initStruct->TS1) - 1) << CAN_BTR_TS1_Pos);
-	CAN_to_init->BTR |= (((initStruct->TS2) - 1) << CAN_BTR_TS2_Pos);
-	CAN_to_init->BTR |= (((initStruct->SJW) - 1) << CAN_BTR_SJW_Pos);
+	CAN_to_init->BTR |= (((uint32_t)(initStruct->BRP) - 1) << CAN_BTR_BRP_Pos);
+	CAN_to_init->BTR |= (((uint32_t)(initStruct->TS1) - 1) << CAN_BTR_TS1_Pos);
+	CAN_to_init->BTR |= (((uint32_t)(initStruct->TS2) - 1) << CAN_BTR_TS2_Pos);
+	CAN_to_init->BTR |= (((uint32_t)(initStruct->SJW) - 1) << CAN_BTR_SJW_Pos);
 	
 	CAN_to_init->IER |= (CAN_IER_TMEIE_Msk | CAN_IER_FMPIE0_Msk | CAN_IER_FMPIE1_Msk | CAN_IER_ERRIE_Msk | CAN_IER_LECIE_Msk | CAN_IER_WKUIE_Msk);
 	CAN_to_init->IER &= ~(CAN_IER_FFIE0_Msk | CAN_IER_FOVIE0_Msk | CAN_IER_FFIE1_Msk | CAN_IER_FOVIE1_Msk | CAN_IER_EWGIE_Msk | CAN_IER_EPVIE_Msk | CAN_IER_BOFIE_Msk | CAN_IER_SLKIE_Msk);
@@ -89,45 +89,28 @@ canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struc
 
 void avruser_CAN_Pull_Settings(CAN_TypeDef* CAN_to_read, type_can_settings_struct* targetStruct)
 {
-	if (CAN_to_read->MCR & CAN_MCR_DBF_Msk) targetStruct->DBF = 1;
-	else targetStruct->DBF = 0;
-	
-	if (CAN_to_read->MCR & CAN_MCR_ABOM_Msk) targetStruct->ABOM = 1;
-	else targetStruct->ABOM = 0;
-	
-	if (CAN_to_read->MCR & CAN_MCR_AWUM_Msk) targetStruct->AWUM = 1;
-	else targetStruct->AWUM = 0;
-	
-	if (CAN_to_read->MCR & CAN_MCR_NART_Msk) targetStruct->NART = 1;
-	else targetStruct->NART = 0;
-	
-	if (CAN_to_read->MCR & CAN_MCR_RFLM_Msk) targetStruct->RFLM = 1;
-	else targetStruct->RFLM = 0;
-	
-	if (CAN_to_read->MCR & CAN_MCR_TXFP_Msk) targetStruct->TXFP = 1;
-	else targetStruct->TXFP = 0;
-	
-	if (CAN_to_read->BTR & CAN_BTR_SILM_Msk) targetStruct->SILM = 1;
-	else targetStruct->SILM = 0;
-	
-	if (CAN_to_read->BTR & CAN_BTR_LBKM_Msk) targetStruct->LBKM = 1;
-	else targetStruct->LBKM = 0;
-	
-	targetStruct->BRP = (((CAN_to_read->BTR) & CAN_BTR_BRP_Msk) >> CAN_BTR_BRP_Pos) + 1;
-	targetStruct->TS1 = (((CAN_to_read->BTR) & CAN_BTR_TS1_Msk) >> CAN_BTR_TS1_Pos) + 1;
-	targetStruct->TS2 = (((CAN_to_read->BTR) & CAN_BTR_TS2_Msk) >> CAN_BTR_TS2_Pos) + 1;
-	targetStruct->SJW = (((CAN_to_read->BTR) & CAN_BTR_SJW_Msk) >> CAN_BTR_SJW_Pos) + 1;
+	targetStruct->DBF = (uint16_t)((CAN_to_read->MCR & CAN_MCR_DBF_Msk) >> CAN_MCR_DBF_Pos);
+	targetStruct->ABOM = (uint16_t)((CAN_to_read->MCR & CAN_MCR_ABOM_Msk) >> CAN_MCR_ABOM_Pos);
+	targetStruct->AWUM = (uint16_t)((CAN_to_read->MCR & CAN_MCR_AWUM_Msk) >> CAN_MCR_AWUM_Pos);
+	targetStruct->NART = (uint16_t)((CAN_to_read->MCR & CAN_MCR_NART_Msk) >> CAN_MCR_NART_Pos);
+	targetStruct->RFLM = (uint16_t)((CAN_to_read->MCR & CAN_MCR_RFLM_Msk) >> CAN_MCR_RFLM_Pos);
+	targetStruct->TXFP = (uint16_t)((CAN_to_read->MCR & CAN_MCR_TXFP_Msk) >> CAN_MCR_TXFP_Pos);
+	targetStruct->SLEEP = (uint16_t)((CAN_to_read->MSR & CAN_MSR_SLAK_Msk) >> CAN_MSR_SLAK_Msk);
+	targetStruct->SILM = (uint16_t)((CAN_to_read->BTR & CAN_BTR_SILM_Msk) >> CAN_BTR_SILM_Pos);
+	targetStruct->LBKM = (uint16_t)((CAN_to_read->BTR & CAN_BTR_LBKM_Msk) >> CAN_BTR_LBKM_Pos);
+	targetStruct->BRP = (uint16_t)(((CAN_to_read->BTR) & CAN_BTR_BRP_Msk) >> CAN_BTR_BRP_Pos) + 1;
+	targetStruct->TS1 = (uint16_t)(((CAN_to_read->BTR) & CAN_BTR_TS1_Msk) >> CAN_BTR_TS1_Pos) + 1;
+	targetStruct->TS2 = (uint16_t)(((CAN_to_read->BTR) & CAN_BTR_TS2_Msk) >> CAN_BTR_TS2_Pos) + 1;
+	targetStruct->SJW = (uint16_t)(((CAN_to_read->BTR) & CAN_BTR_SJW_Msk) >> CAN_BTR_SJW_Pos) + 1;
 }
 
 void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct)
 {
-	if ((filterInitStruct->filterNumber) != 28)
+	if ((filterInitStruct->filterNumber) <= 27)
 	{
-		if (filterInitStruct->filterNumber > 27) filterInitStruct->filterNumber = 27;
-		
 		CAN1->FA1R &= ~(1U << (filterInitStruct->filterNumber));
-		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR1 = filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 0] + (filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 1] << 16);
-		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR2 = filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 2] + (filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 3] << 16);
+		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR1 = (uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 0]) + ((uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 1]) << 16);
+		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR2 = (uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 2]) + ((uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 3]) << 16);
 		CAN1->FA1R |= (1U << (filterInitStruct->filterNumber));
 	}
 	else
@@ -137,17 +120,17 @@ void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct)
 		if ((filterInitStruct->CAN2SB) > 28) filterInitStruct->CAN2SB = 28;
 		
 		CAN1->FMR &= ~CAN_FMR_CAN2SB_Msk;
-		CAN1->FMR |= ((filterInitStruct->CAN2SB) << CAN_FMR_CAN2SB_Pos);
+		CAN1->FMR |= ((uint32_t)(filterInitStruct->CAN2SB) << CAN_FMR_CAN2SB_Pos);
 		
-		CAN1->FM1R = 0x0FFFFFFF & (filterInitStruct->CAN_FM1R_L + ((filterInitStruct->CAN_FM1R_H) << 16));
-		CAN1->FS1R = 0x0FFFFFFF & (filterInitStruct->CAN_FS1R_L + ((filterInitStruct->CAN_FS1R_H) << 16));
-		CAN1->FFA1R = 0x0FFFFFFF & (filterInitStruct->CAN_FFA1R_L + ((filterInitStruct->CAN_FFA1R_H) << 16));
-		CAN1->FA1R = 0x0FFFFFFF & (filterInitStruct->CAN_FA1R_L + ((filterInitStruct->CAN_FA1R_H) << 16));
+		CAN1->FM1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FM1R_L) + ((uint32_t)(filterInitStruct->CAN_FM1R_H) << 16));
+		CAN1->FS1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FS1R_L) + ((uint32_t)(filterInitStruct->CAN_FS1R_H) << 16));
+		CAN1->FFA1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FFA1R_L) + ((uint32_t)(filterInitStruct->CAN_FFA1R_H) << 16));
+		CAN1->FA1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FA1R_L) + ((uint32_t)(filterInitStruct->CAN_FA1R_H) << 16));
 		
 		for (uint8_t filterBankIndex = 0; filterBankIndex < 28; filterBankIndex++)
 		{
-			(CAN1->sFilterRegister[filterBankIndex]).FR1 = filterInitStruct->CAN_FR[4*filterBankIndex + 0] + (filterInitStruct->CAN_FR[4*filterBankIndex + 1] << 16);
-			(CAN1->sFilterRegister[filterBankIndex]).FR2 = filterInitStruct->CAN_FR[4*filterBankIndex + 2] + (filterInitStruct->CAN_FR[4*filterBankIndex + 3] << 16);
+			(CAN1->sFilterRegister[filterBankIndex]).FR1 = (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 0]) + (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 1] << 16);
+			(CAN1->sFilterRegister[filterBankIndex]).FR2 = (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 2]) + (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 3] << 16);
 		}
 	}
 	
@@ -175,86 +158,69 @@ void avruser_CAN_Pull_Filter_Settings(type_can_filter_settings_struct* targetStr
 	}
 }
 
-FIFO_Typedef* FIFO_Create(void)
+uint16_t increaseCycledIndex(uint16_t input)
 {
-	FIFO_Typedef* createFIFO = (FIFO_Typedef*)malloc(sizeof(FIFO_Typedef));
-	if (createFIFO != NULL) createFIFO->FI = NULL;
-	return createFIFO;
+	if (input == (SOFTWARE_FIFO_SIZE - 1)) return 0;
+	else return (input + 1);
 }
 
-void FIFO_Delete(FIFO_Typedef* deleteFIFO)
+void FIFO_Reset(FIFO_Typedef* resetFIFO)
 {
-	if (deleteFIFO == NULL) return;
-	FIFO_Element_Typedef* tempPointer = deleteFIFO->FI;
-	while(tempPointer != NULL)
+	resetFIFO->readIndex = 0;
+	resetFIFO->writeIndex = 0;
+	resetFIFO->emptyFlag = 1;
+	resetFIFO->fullFlag = 0;
+	resetFIFO->underrunFlag = 0;
+	resetFIFO->overrunFlag = 0;
+}
+
+void FIFO_Push(FIFO_Data_Typedef* sourceStruct, FIFO_Typedef* pushFIFO)
+{
+	if ((pushFIFO->writeIndex == pushFIFO->readIndex) && (pushFIFO->fullFlag)) 
 	{
-		FIFO_Element_Typedef* deletePointer = tempPointer;
-		tempPointer = tempPointer->next;
-		free(deletePointer->data);
-		free(deletePointer);
+		pushFIFO->overrunFlag = 1;
 	}
-	free(deleteFIFO);
-}
-
-void FIFO_Push(void* pushDataPointer, FIFO_Typedef* pushFIFO)
-{
-	if (pushFIFO == NULL) return;
-	FIFO_Element_Typedef* oldFI = pushFIFO->FI;
-	pushFIFO->FI = (FIFO_Element_Typedef*)malloc(sizeof(FIFO_Element_Typedef));
-	pushFIFO->FI->data = pushDataPointer;
-	pushFIFO->FI->next = oldFI;
-}
-
-void* FIFO_Pop(FIFO_Typedef* popFIFO)
-{
-	void* popDataPointer;
-	if (popFIFO != NULL)
+	else
 	{
-		if (popFIFO->FI != NULL)
-		{
-			if (popFIFO->FI->next == NULL)
-			{
-				popDataPointer = popFIFO->FI->data;
-				free(popFIFO->FI);
-				popFIFO->FI = NULL;
-			}
-			else
-			{
-				FIFO_Element_Typedef* tempPointer = popFIFO->FI;
-				while(tempPointer->next->next != NULL) tempPointer = tempPointer->next;
-				popDataPointer = tempPointer->next->data;
-				free(tempPointer->next);
-				tempPointer->next = NULL;
-			}
-		}
+		pushFIFO->data[(pushFIFO->writeIndex)] = *sourceStruct;
+		pushFIFO->writeIndex = increaseCycledIndex(pushFIFO->writeIndex);
+		pushFIFO->underrunFlag = 0;
+		pushFIFO->emptyFlag = 0;
+		if (pushFIFO->writeIndex == pushFIFO->readIndex) pushFIFO->fullFlag = 1;
 	}
-	return popDataPointer;
+}
+
+void FIFO_Pop(FIFO_Data_Typedef* targetStruct, FIFO_Typedef* popFIFO)
+{
+	if ((popFIFO->readIndex == popFIFO->writeIndex) && (popFIFO->emptyFlag)) 
+	{
+		popFIFO->underrunFlag = 1;
+	}
+	else
+	{
+		*targetStruct = popFIFO->data[(popFIFO->readIndex)];
+		popFIFO->readIndex = increaseCycledIndex(popFIFO->readIndex);
+		popFIFO->overrunFlag = 0;
+		popFIFO->fullFlag = 0;
+		if (popFIFO->writeIndex == popFIFO->readIndex) popFIFO->emptyFlag = 1;
+	}
 }
 
 uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO)
 {
-	uint16_t length;
-	if (lengthFIFO != NULL) 
-	{
-		length = 0;
-		FIFO_Element_Typedef* tempPointer = lengthFIFO->FI;
-		while (tempPointer != NULL)
-		{
-			length++;
-			tempPointer = tempPointer->next;
-		}
-	}
-	return length;
+	if (lengthFIFO->emptyFlag) return 0;
+	else if (lengthFIFO->fullFlag) return SOFTWARE_FIFO_SIZE;
+	else return lengthFIFO->writeIndex - lengthFIFO->readIndex;
 }
 
-void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push, FIFO_Overrun_Flag_Typedef* overrunFlag)
+void avruser_CAN_Receive_IT_Handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push)
 {
 	uint32_t identifierReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RIR;
 	uint32_t DLCReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDTR;
 	uint32_t dataLowReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDLR;
 	uint32_t dataHighReg = ((CAN_to_handle->sFIFOMailBox)[FIFO_Number]).RDHR;
 	
-	FIFO_Frame_Data_Typedef dataToPush;
+	FIFO_Data_Typedef dataToPush;
 	
 	if (FIFO_Number == 0)
 	{
@@ -281,33 +247,32 @@ void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Num
 	
 	for (uint8_t byteIndex = 0; byteIndex < (dataToPush.DLC); byteIndex++)
 	{
-		if (byteIndex < 4) (dataToPush.DATA)[byteIndex] = (uint8_t)(0xFF & (dataLowReg >> (byteIndex*8)));
-		else (dataToPush.DATA)[byteIndex] = (uint8_t)(0xFF & (dataHighReg >> ((byteIndex - 4)*8)));
+		if (byteIndex < 4) (dataToPush.DATA)[byteIndex] = (uint8_t)(0x000000FF & (dataLowReg >> (byteIndex*8)));
+		else (dataToPush.DATA)[byteIndex] = (uint8_t)(0x000000FF & (dataHighReg >> ((byteIndex - 4)*8)));
 	}
-	
-	if (FIFO_Get_Length(FIFO_to_push) < SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(&dataToPush, FIFO_to_push);
-	else *overrunFlag = overrunOccured;
+	FIFO_Push(&dataToPush, FIFO_to_push);
 }
 
-void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From, FIFO_Overrun_Flag_Typedef* overrunFlag)
+void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_to_get_from)
 {
-	if (FIFO_Get_Length(FIFO_To_Get_From) == 0) return;
-	FIFO_Frame_Data_Typedef frame = *(FIFO_Frame_Data_Typedef*)FIFO_Pop(FIFO_To_Get_From);
-	//destinationStruct->numberOfFrames = FIFO_Get_Length(FIFO_To_Get_From);
-	destinationStruct->ID_L = (uint16_t)(frame.ID & 0xFFFF);
-	destinationStruct->ID_H = (uint16_t)((frame.ID & 0xFFFF0000) >> 16);
-	destinationStruct->IDE = frame.IDE;
-	destinationStruct->FMI = frame.FMI;
-	destinationStruct->RTR = frame.RTR;
-	destinationStruct->DLC = frame.DLC;
-	destinationStruct->DATA[0] = (uint16_t)(frame.DATA[0]) | ((uint16_t)(frame.DATA[1]) << 8);
-	destinationStruct->DATA[1] = (uint16_t)(frame.DATA[2]) | ((uint16_t)(frame.DATA[3]) << 8);
-	destinationStruct->DATA[2] = (uint16_t)(frame.DATA[4]) | ((uint16_t)(frame.DATA[5]) << 8);
-	destinationStruct->DATA[3] = (uint16_t)(frame.DATA[6]) | ((uint16_t)(frame.DATA[7]) << 8);
-	if (FIFO_Get_Length(FIFO_To_Get_From) < SOFTWARE_FIFO_MAX_SIZE) *overrunFlag = noOverrun;
+	if (!(FIFO_to_get_from->emptyFlag))
+	{
+		FIFO_Data_Typedef frame;
+		FIFO_Pop(&frame, FIFO_to_get_from);
+		destinationStruct->ID_L = (uint16_t)(frame.ID & 0xFFFF);
+		destinationStruct->ID_H = (uint16_t)((frame.ID & 0xFFFF0000) >> 16);
+		destinationStruct->IDE = frame.IDE;
+		destinationStruct->FMI = frame.FMI;
+		destinationStruct->RTR = frame.RTR;
+		destinationStruct->DLC = frame.DLC;
+		destinationStruct->DATA[0] = (uint16_t)(frame.DATA[0]) | ((uint16_t)(frame.DATA[1]) << 8);
+		destinationStruct->DATA[1] = (uint16_t)(frame.DATA[2]) | ((uint16_t)(frame.DATA[3]) << 8);
+		destinationStruct->DATA[2] = (uint16_t)(frame.DATA[4]) | ((uint16_t)(frame.DATA[5]) << 8);
+		destinationStruct->DATA[3] = (uint16_t)(frame.DATA[6]) | ((uint16_t)(frame.DATA[7]) << 8);
+	}
 }
 
-void avruser_CAN_update_status_struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Overrun_Flag_Typedef* overrunFlags)
+void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef** FIFO_to_read_overrun)
 {
 	destinationStruct->mode = (uint16_t)((CAN_to_read->MSR & (CAN_MSR_SLAK_Msk | CAN_MSR_INAK_Msk)) >> CAN_MSR_INAK_Pos);
 	uint32_t TSReg = CAN_to_read->TSR;
@@ -316,14 +281,14 @@ void avruser_CAN_update_status_struct(CAN_TypeDef* CAN_to_read, type_can_status_
 	destinationStruct->ALST = (uint16_t)(((TSReg & CAN_TSR_ALST0_Msk) >> (CAN_TSR_ALST0_Pos - 0)) | ((TSReg & CAN_TSR_ALST1_Msk) >> (CAN_TSR_ALST1_Pos - 1)) | ((TSReg & CAN_TSR_ALST2_Msk) >> (CAN_TSR_ALST2_Pos - 2)));
 	destinationStruct->TXOK = (uint16_t)(((TSReg & CAN_TSR_TXOK0_Msk) >> (CAN_TSR_TXOK0_Pos - 0)) | ((TSReg & CAN_TSR_TXOK1_Msk) >> (CAN_TSR_TXOK1_Pos - 1)) | ((TSReg & CAN_TSR_TXOK2_Msk) >> (CAN_TSR_TXOK2_Pos - 2)));
 	destinationStruct->RQCP = (uint16_t)(((TSReg & CAN_TSR_RQCP0_Msk) >> (CAN_TSR_RQCP0_Pos - 0)) | ((TSReg & CAN_TSR_RQCP1_Msk) >> (CAN_TSR_RQCP1_Pos - 1)) | ((TSReg & CAN_TSR_RQCP2_Msk) >> (CAN_TSR_RQCP2_Pos - 2)));
-	if (overrunFlags != NULL) destinationStruct->softwareFIFO_Overrun = overrunFlags[0] | (overrunFlags[1] << 1);
-	destinationStruct->REC = (CAN_to_read->ESR & CAN_ESR_REC_Msk) >> CAN_ESR_REC_Pos;
-	destinationStruct->TEC = (CAN_to_read->ESR & CAN_ESR_TEC_Msk) >> CAN_ESR_TEC_Pos;
-	destinationStruct->BOFF = (CAN_to_read->ESR & CAN_ESR_BOFF_Msk) >> CAN_ESR_BOFF_Pos;
-	destinationStruct->EPVF = (CAN_to_read->ESR & CAN_ESR_EPVF_Msk) >> CAN_ESR_EPVF_Pos;
+	destinationStruct->softwareFIFO_Overrun = (FIFO_to_read_overrun[0]->overrunFlag) | ((FIFO_to_read_overrun[1]->overrunFlag) << 1);
+	destinationStruct->REC = (uint16_t)((CAN_to_read->ESR & CAN_ESR_REC_Msk) >> CAN_ESR_REC_Pos);
+	destinationStruct->TEC = (uint16_t)((CAN_to_read->ESR & CAN_ESR_TEC_Msk) >> CAN_ESR_TEC_Pos);
+	destinationStruct->BOFF = (uint16_t)((CAN_to_read->ESR & CAN_ESR_BOFF_Msk) >> CAN_ESR_BOFF_Pos);
+	destinationStruct->EPVF = (uint16_t)((CAN_to_read->ESR & CAN_ESR_EPVF_Msk) >> CAN_ESR_EPVF_Pos);
 }
 
-void avruser_CAN_request_transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber, type_can_transmit_struct* transmissionData)
+void avruser_CAN_Request_Transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber, type_can_transmit_struct* transmissionData)
 {
 	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR = 0;
 	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR = 0;
@@ -338,40 +303,42 @@ void avruser_CAN_request_transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t 
 		transmissionData->ID_H &= 0x0000;
 	}
 	transmissionData->DLC &= 0x000F;
-	if (mailboxNumber == 0)
+	switch (mailboxNumber)
 	{
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI0R_EXID_Pos : CAN_TI0R_STID_Pos);
-		if ((transmissionData->IDE)) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_IDE_Msk;
-		if ((transmissionData->RTR)) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_RTR_Msk;
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT0R_DLC_Pos);
-	}
-	else if (mailboxNumber == 1)
-	{
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI1R_EXID_Pos : CAN_TI1R_STID_Pos);
-		if ((transmissionData->IDE))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_IDE_Msk;
-		if ((transmissionData->RTR))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_RTR_Msk;
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT1R_DLC_Pos);
-	}
-	else if (mailboxNumber == 2)
-	{
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI2R_EXID_Pos : CAN_TI2R_STID_Pos);
-		if ((transmissionData->IDE))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_IDE_Msk;
-		if ((transmissionData->RTR))(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_RTR_Msk;
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT2R_DLC_Pos);
+		case 0:
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI0R_EXID_Pos : CAN_TI0R_STID_Pos);
+			if (transmissionData->IDE) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_IDE_Msk;
+			if (transmissionData->RTR) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_RTR_Msk;
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT0R_DLC_Pos);
+			break;
+		
+		case 1:
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI1R_EXID_Pos : CAN_TI1R_STID_Pos);
+			if (transmissionData->IDE) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_IDE_Msk;
+			if (transmissionData->RTR) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_RTR_Msk;
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT1R_DLC_Pos);
+			break;
+		
+		case 2:
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= ((uint32_t)(transmissionData->ID_L) | ((uint32_t)(transmissionData->ID_H) << 16)) << ((transmissionData->IDE) ? CAN_TI2R_EXID_Pos : CAN_TI2R_STID_Pos);
+			if (transmissionData->IDE) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_IDE_Msk;
+			if (transmissionData->RTR) (CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_RTR_Msk;
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDTR |= ((uint32_t)(transmissionData->DLC) << CAN_TDT2R_DLC_Pos);
+			break;
 	}
 	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDLR = ((uint32_t)(transmissionData->DATA[0]) | ((uint32_t)(transmissionData->DATA[1]) << 16));
 	(CAN_to_request_from->sTxMailBox[mailboxNumber]).TDHR = ((uint32_t)(transmissionData->DATA[2]) | ((uint32_t)(transmissionData->DATA[3]) << 16));
-	if (mailboxNumber == 0)
+	switch (mailboxNumber)
 	{
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_TXRQ_Msk;
-	}
-	else if (mailboxNumber == 1)
-	{
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_TXRQ_Msk;
-	}
-	else if (mailboxNumber == 2)
-	{
-		(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_TXRQ_Msk;
+		case 0:
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI0R_TXRQ_Msk;
+			break;		
+		case 1:
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI1R_TXRQ_Msk;
+			break;		
+		case 2:
+			(CAN_to_request_from->sTxMailBox[mailboxNumber]).TIR |= CAN_TI2R_TXRQ_Msk;
+			break;
 	}
 }
 
@@ -391,21 +358,21 @@ void avruser_CAN_request_abort(CAN_TypeDef* CAN_to_request_from, uint8_t mailbox
 	}
 }
 
-void avruser_CAN_transmit_IT_handler(CAN_TypeDef* CAN_to_handle)
+void avruser_CAN_Transmit_IT_Handler(CAN_TypeDef* CAN_to_handle)
 {
 	if (CAN_to_handle->TSR & CAN_TSR_RQCP0_Msk) CAN_to_handle->TSR |= CAN_TSR_RQCP0_Msk;
 	if (CAN_to_handle->TSR & CAN_TSR_RQCP1_Msk) CAN_to_handle->TSR |= CAN_TSR_RQCP1_Msk;
 	if (CAN_to_handle->TSR & CAN_TSR_RQCP2_Msk) CAN_to_handle->TSR |= CAN_TSR_RQCP2_Msk;
 }
 
-void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, FIFO_Typedef* FIFO_to_push)
+void avruser_CAN_Status_Change_IT_Handler(CAN_TypeDef* CAN_to_handle, FIFO_Typedef* FIFO_to_push_errors)
 {
 	if (CAN_to_handle->MSR & CAN_MSR_ERRI_Msk)
 	{
 		CAN_to_handle->MSR |= CAN_MSR_ERRI_Msk;
-		FIFO_Error_Data_Typedef element_to_push;
-		element_to_push.LEC = ((CAN_to_handle->ESR & CAN_ESR_LEC_Msk) >> CAN_ESR_LEC_Pos);
-		if (FIFO_Get_Length(FIFO_to_push) <= SOFTWARE_FIFO_MAX_SIZE) FIFO_Push(&element_to_push, FIFO_to_push);
+		FIFO_Data_Typedef element_to_push;
+		element_to_push.LEC = (uint16_t)((CAN_to_handle->ESR & CAN_ESR_LEC_Msk) >> CAN_ESR_LEC_Pos);
+		FIFO_Push(&element_to_push, FIFO_to_push_errors);
 	}
 	if (CAN_to_handle->MSR & CAN_MSR_WKUI_Msk)
 	{
@@ -413,20 +380,15 @@ void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, FIFO_Typed
 	}
 }
 
-void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From)
+void avruser_CAN_Get_Error_Message(type_can_error_struct* destinationStruct, FIFO_Typedef* FIFO_to_get_from)
 {
-	if (FIFO_Get_Length(FIFO_To_Get_From) > 0)
-	{
-		FIFO_Error_Data_Typedef error_element = *(FIFO_Error_Data_Typedef*)FIFO_Pop(FIFO_To_Get_From);
-		destinationStruct->errorCode = error_element.LEC;
-	}
-	else
-	{
-		destinationStruct->errorCode = 0;
-	}
+	destinationStruct->errorCode = 0;
+	FIFO_Data_Typedef error_element; 
+	FIFO_Pop(&error_element, FIFO_to_get_from);
+	destinationStruct->errorCode = error_element.LEC;
 }
 
-void avruser_CAN_update_FIFO_length(FIFO_Typedef* lengthFIFO, type_can_receive_struct* targetStruct)
+void avruser_CAN_Update_FIFO_Length(type_can_receive_struct* targetStruct, FIFO_Typedef* lengthFIFO)
 {
 	targetStruct->numberOfFrames = FIFO_Get_Length(lengthFIFO);
 }

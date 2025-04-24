@@ -4,7 +4,7 @@
 #include "main.h"
 
 #define NUMBER_OF_ATTEMPTS 100000
-#define SOFTWARE_FIFO_MAX_SIZE 1000
+#define SOFTWARE_FIFO_SIZE 1000
 
 typedef enum
 {
@@ -12,13 +12,6 @@ typedef enum
 	canInitError = 1,
 } 
 canInitResult;
-
-typedef enum
-{
-	noOverrun = 0,
-	overrunOccured = 1,
-} 
-FIFO_Overrun_Flag_Typedef;
 
 #pragma pack(push, 2)
 
@@ -141,48 +134,41 @@ typedef struct
 	uint8_t RTR;
 	uint8_t DLC;
 	uint8_t DATA[8];
-}
-FIFO_Frame_Data_Typedef;
-
-typedef struct 
-{
 	uint8_t LEC;
 }
-FIFO_Error_Data_Typedef;
-
-struct FIFO_Element
-{
-	void* data;
-	struct FIFO_Element* next;
-};
-
-typedef struct FIFO_Element FIFO_Element_Typedef;
+FIFO_Data_Typedef;
 
 typedef struct
 {
-	FIFO_Element_Typedef* FI;
+	FIFO_Data_Typedef data[SOFTWARE_FIFO_SIZE];
+	uint16_t readIndex;
+	uint16_t writeIndex;
+	uint8_t fullFlag;
+	uint8_t emptyFlag;
+	uint8_t overrunFlag;
+	uint8_t underrunFlag;
 }
 FIFO_Typedef;
 
-FIFO_Typedef* FIFO_Create(void);
-void FIFO_Delete(FIFO_Typedef* deleteFIFO);
-void FIFO_Push(void* pushDataPointer, FIFO_Typedef* pushFIFO);
-void* FIFO_Pop(FIFO_Typedef* popFIFO);
+
+void FIFO_Reset(FIFO_Typedef* resetFIFO);
+void FIFO_Push(FIFO_Data_Typedef* sourceStruct, FIFO_Typedef* pushFIFO);
+void FIFO_Pop(FIFO_Data_Typedef* targetStruct, FIFO_Typedef* popFIFO);
 uint16_t FIFO_Get_Length(FIFO_Typedef* lengthFIFO);
 
 canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struct* initStruct);
 void avruser_CAN_Pull_Settings(CAN_TypeDef* CAN_to_read, type_can_settings_struct* targetStruct);
 void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct);
 void avruser_CAN_Pull_Filter_Settings(type_can_filter_settings_struct* targetStruct);
-void avruser_CAN_receive_IT_handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push, FIFO_Overrun_Flag_Typedef* overrunFlag);
-void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From, FIFO_Overrun_Flag_Typedef* overrunFlag);
-void avruser_CAN_update_status_struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Overrun_Flag_Typedef* overrunFlags);
-void avruser_CAN_request_transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber, type_can_transmit_struct* transmissionData);
-void avruser_CAN_request_abort(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber);
-void avruser_CAN_transmit_IT_handler(CAN_TypeDef* CAN_to_handle);
-void avruser_CAN_status_change_IT_handler(CAN_TypeDef* CAN_to_handle, FIFO_Typedef* FIFO_to_push);
-void avruser_CAN_get_error_message(type_can_error_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From);
-void avruser_CAN_update_FIFO_length(FIFO_Typedef* lengthFIFO, type_can_receive_struct* targetStruct);
+void avruser_CAN_Receive_IT_Handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push);
+void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_To_Get_From);
+void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef** FIFO_to_read_overrun);
+void avruser_CAN_Request_Transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber, type_can_transmit_struct* transmissionData);
+void avruser_CAN_Request_Abort(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber);
+void avruser_CAN_Transmit_IT_Handler(CAN_TypeDef* CAN_to_handle);
+void avruser_CAN_Status_Change_IT_Handler(CAN_TypeDef* CAN_to_handle, FIFO_Typedef* FIFO_to_push_errors);
+void avruser_CAN_Get_Error_Message(type_can_error_struct* destinationStruct, FIFO_Typedef* FIFO_to_get_from);
+void avruser_CAN_Update_FIFO_Length(type_can_receive_struct* targetStruct, FIFO_Typedef* lengthFIFO);
 canInitResult avruser_CAN_Recover_Bus_Off(CAN_TypeDef* CAN_to_recover);
 
 #endif

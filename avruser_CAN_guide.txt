@@ -1,0 +1,62 @@
+can1 status 2455
+can2 status 2466
+can1 receive [0] 2477
+can1 receive [1] 2488
+can2 receive [0] 2499
+can2 receive [1] 2510
+can1 error 2521
+can2 error 2522
+
+can1 settings 1669
+can2 settings 1683
+can12 filter settings 1697
+can1 control 1820
+can2 control 1824
+can1 transmit [0] 1828
+can1 transmit [1] 1839
+can1 transmit [2] 1850
+can2 transmit [0] 1861
+can2 transmit [1] 1872
+can2 transmit [2] 1883
+
+canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struct* initStruct)
+Производит настройку контроллера CAN_to_init согласно параметрам, указанным в initStruct. В случае, если в initStruct указаны ошибочные параметры, функция подгоняет их до допустимых значений. В случае, если не удается перевести контроллер CAN в режим инициализации, возвращает canInitError, иначе - canInitSuccess.
+
+void avruser_CAN_Pull_Settings(CAN_TypeDef* CAN_to_read, type_can_settings_struct* targetStruct)
+Производит считывание параметров настройки контроллера CAN_to_read в структуру targetStruct.
+
+void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct)
+Производит настройку фильтров обоих контроллеров CAN согласно параметрам в filterInitStruct. В случае, если в filterInitStruct указаны ошибочные параметры, функция подгоняет их до допустимых значений.
+
+void avruser_CAN_Pull_Filter_Settings(type_can_filter_settings_struct* targetStruct)
+Производит считывание параметров настройки фильтров обоих контроллеров CAN в структуру targetStruct.
+
+void avruser_CAN_Receive_IT_Handler(CAN_TypeDef* CAN_to_handle, uint8_t FIFO_Number, FIFO_Typedef* FIFO_to_push)
+Предназначена для вызова из прерывания приемного почтового ящика с номером FIFO_Number CAN контроллера CAN_to_handle. Сбрасывает признак прерывания и помещает кадр в программную очередь FIFO_to_push. При переполнении очереди в структуре очереди устанавливается флаг.
+
+void avruser_CAN_Get_Frame(type_can_receive_struct* destinationStruct, FIFO_Typedef* FIFO_to_get_from)
+Выталкивает кадр из очереди FIFO_to_get_from и помещает его в destinationStruct. Если очередь пуста, содержимое destinationStruct не меняется.
+
+void avruser_CAN_Update_Status_Struct(CAN_TypeDef* CAN_to_read, type_can_status_struct* destinationStruct, FIFO_Typedef** FIFO_to_read_overrun)
+Обновляет данные в структуре статуса контроллера CAN_to_read в соответствии с его регистрами CAN_MSR, CAN_TSR, CAN_ESR и флагами переполнения массива из двух очередей FIFO_to_read_overrun.
+
+void avruser_CAN_Request_Transmittion(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber, type_can_transmit_struct* transmissionData)
+Запрашивает передачу кадра с данными из transmissionData у почтового ящика с номером mailboxNumber контроллера CAN_to_request_from.
+
+void avruser_CAN_request_abort(CAN_TypeDef* CAN_to_request_from, uint8_t mailboxNumber)
+Запрашивает прерывание передачи кадра из почтового ящика с номером mailboxNumber контроллера CAN_to_request_from.
+
+void avruser_CAN_Transmit_IT_Handler(CAN_TypeDef* CAN_to_handle)
+Предназначена для вызова из прерывания передающих почтовых ящиков контроллера CAN_to_handle. Сбрасывает признаки прерывания.
+
+void avruser_CAN_Status_Change_IT_Handler(CAN_TypeDef* CAN_to_handle, FIFO_Typedef* FIFO_to_push_errors)
+Предназначена для вызова из прерывания ошибок и изменения статуса контроллера CAN_to_handle. Сбрасывает признак прерывания, и, если причиной прерывания является ошибка, помещает ее код в очередь FIFO_to_push_errors.
+
+void avruser_CAN_Get_Error_Message(type_can_error_struct* destinationStruct, FIFO_Typedef* FIFO_to_get_from)
+Выталкивает кадр с кодом ошибки из очереди FIFO_to_get_from и помещает код ошибки в destinationStruct. Если очередь пуста, в destinationStruct помещается 0;
+
+void avruser_CAN_Update_FIFO_Length(type_can_receive_struct* targetStruct, FIFO_Typedef* lengthFIFO)
+Обновляет данные в targetStruct о количестве кадров, доступных в lengthFIFO.
+
+canInitResult avruser_CAN_Recover_Bus_Off(CAN_TypeDef* CAN_to_recover)
+Восстанавливает контроллер CAN_to_recover из состояния Bus-Off. Вовзращает canInitError, если возникают проблемы с переводом контроллера из одного режима в другой, иначе возвращает canInitSuccess.
