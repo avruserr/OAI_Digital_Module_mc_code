@@ -138,15 +138,15 @@ typedef struct
 }
 FIFO_Data_Typedef;
 
-typedef struct
+typedef struct fifo_tag
 {
 	FIFO_Data_Typedef data[SOFTWARE_FIFO_SIZE];
-	uint16_t readIndex;
-	uint16_t writeIndex;
-	uint8_t fullFlag;
-	uint8_t emptyFlag;
-	uint8_t overrunFlag;
-	uint8_t underrunFlag;
+	volatile uint16_t readIndex;
+	volatile uint16_t writeIndex;
+	volatile uint8_t fullFlag;
+	volatile uint8_t emptyFlag;
+	volatile uint8_t overrunFlag;
+	volatile uint8_t underrunFlag;
 }
 FIFO_Typedef;
 
@@ -170,5 +170,6 @@ void avruser_CAN_Status_Change_IT_Handler(CAN_TypeDef* CAN_to_handle, FIFO_Typed
 void avruser_CAN_Get_Error_Message(type_can_error_struct* destinationStruct, FIFO_Typedef* FIFO_to_get_from);
 void avruser_CAN_Update_FIFO_Length(type_can_receive_struct* targetStruct, FIFO_Typedef* lengthFIFO);
 canInitResult avruser_CAN_Recover_Bus_Off(CAN_TypeDef* CAN_to_recover);
+
 
 #endif

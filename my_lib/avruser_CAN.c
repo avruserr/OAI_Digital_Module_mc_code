@@ -1,5 +1,4 @@
 #include "avruser_CAN.h"
-#include "stdlib.h"
 
 canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struct* initStruct)
 {
@@ -172,7 +171,7 @@ void FIFO_Reset(FIFO_Typedef* resetFIFO)
 	resetFIFO->fullFlag = 0;
 	resetFIFO->underrunFlag = 0;
 	resetFIFO->overrunFlag = 0;
-}
+}		
 
 void FIFO_Push(FIFO_Data_Typedef* sourceStruct, FIFO_Typedef* pushFIFO)
 {

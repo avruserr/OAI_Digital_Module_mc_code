@@ -143,7 +143,7 @@ uint8_t test_flag;
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-			
+	
 /* USER CODE END 0 */
 
 /**
@@ -263,7 +263,6 @@ int main(void)
 	
 	FIFO_Reset(&CAN1_Errors_FIFO);
 	FIFO_Reset(&CAN2_Errors_FIFO);
-	while(CAN1_Errors_FIFO.emptyFlag == 0);
 	
 	type_can_settings_struct defaultCANinitStruct;
 	defaultCANinitStruct.DBF = 0;

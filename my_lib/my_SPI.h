@@ -102,7 +102,7 @@ typedef struct
 }
 type_spi_command_bank_control;
 
-#pragma pack(pop, 2)
+#pragma pack(pop)
 
 typedef struct
 {

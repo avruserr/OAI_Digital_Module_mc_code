@@ -27,7 +27,7 @@ typedef struct{
 }
 type_SPI_Ansver;
 
-#pragma pack(pop, 2)
+#pragma pack(pop)
 
 void SPI_RW_routine(type_SPI_RW_data* spi_rw_data, type_SPI_Ansver* spi_answer);
 void CS_UP_DOWN(uint16_t pin_num, uint8_t SET_RESET);
