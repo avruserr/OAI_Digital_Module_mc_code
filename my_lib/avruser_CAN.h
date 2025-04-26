@@ -138,15 +138,15 @@ typedef struct
 }
 FIFO_Data_Typedef;
 
-typedef struct fifo_tag
+typedef struct
 {
 	FIFO_Data_Typedef data[SOFTWARE_FIFO_SIZE];
-	volatile uint16_t readIndex;
-	volatile uint16_t writeIndex;
-	volatile uint8_t fullFlag;
-	volatile uint8_t emptyFlag;
-	volatile uint8_t overrunFlag;
-	volatile uint8_t underrunFlag;
+	uint16_t readIndex;
+	uint16_t writeIndex;
+	uint8_t fullFlag;
+	uint8_t emptyFlag;
+	uint8_t overrunFlag;
+	uint8_t underrunFlag;
 }
 FIFO_Typedef;
 
