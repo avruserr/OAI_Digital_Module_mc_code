@@ -107,10 +107,11 @@ void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct)
 {
 	if ((filterInitStruct->filterNumber) <= 27)
 	{
+		uint8_t isFilterActive = ((CAN1->FA1R) & (1U << (filterInitStruct->filterNumber))) ? 1 : 0;
 		CAN1->FA1R &= ~(1U << (filterInitStruct->filterNumber));
-		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR1 = (uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 0]) + ((uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 1]) << 16);
-		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR2 = (uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 2]) + ((uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 3]) << 16);
-		CAN1->FA1R |= (1U << (filterInitStruct->filterNumber));
+		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR1 = (uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 0]) | ((uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 1]) << 16);
+		(CAN1->sFilterRegister[(filterInitStruct->filterNumber)]).FR2 = (uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 2]) | ((uint32_t)(filterInitStruct->CAN_FR[4*(filterInitStruct->filterNumber) + 3]) << 16);
+		if (isFilterActive) CAN1->FA1R |= (1U << (filterInitStruct->filterNumber));
 	}
 	else
 	{
@@ -121,15 +122,15 @@ void avruser_CAN_Filter_Init(type_can_filter_settings_struct* filterInitStruct)
 		CAN1->FMR &= ~CAN_FMR_CAN2SB_Msk;
 		CAN1->FMR |= ((uint32_t)(filterInitStruct->CAN2SB) << CAN_FMR_CAN2SB_Pos);
 		
-		CAN1->FM1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FM1R_L) + ((uint32_t)(filterInitStruct->CAN_FM1R_H) << 16));
-		CAN1->FS1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FS1R_L) + ((uint32_t)(filterInitStruct->CAN_FS1R_H) << 16));
-		CAN1->FFA1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FFA1R_L) + ((uint32_t)(filterInitStruct->CAN_FFA1R_H) << 16));
-		CAN1->FA1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FA1R_L) + ((uint32_t)(filterInitStruct->CAN_FA1R_H) << 16));
+		CAN1->FM1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FM1R_L) | ((uint32_t)(filterInitStruct->CAN_FM1R_H) << 16));
+		CAN1->FS1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FS1R_L) | ((uint32_t)(filterInitStruct->CAN_FS1R_H) << 16));
+		CAN1->FFA1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FFA1R_L) | ((uint32_t)(filterInitStruct->CAN_FFA1R_H) << 16));
+		CAN1->FA1R = 0x0FFFFFFF & ((uint32_t)(filterInitStruct->CAN_FA1R_L) | ((uint32_t)(filterInitStruct->CAN_FA1R_H) << 16));
 		
 		for (uint8_t filterBankIndex = 0; filterBankIndex < 28; filterBankIndex++)
 		{
-			(CAN1->sFilterRegister[filterBankIndex]).FR1 = (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 0]) + (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 1] << 16);
-			(CAN1->sFilterRegister[filterBankIndex]).FR2 = (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 2]) + (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 3] << 16);
+			(CAN1->sFilterRegister[filterBankIndex]).FR1 = (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 0]) | (uint32_t)((filterInitStruct->CAN_FR[4*filterBankIndex + 1]) << 16);
+			(CAN1->sFilterRegister[filterBankIndex]).FR2 = (uint32_t)(filterInitStruct->CAN_FR[4*filterBankIndex + 2]) | (uint32_t)((filterInitStruct->CAN_FR[4*filterBankIndex + 3]) << 16);
 		}
 	}
 	
