@@ -1,23 +1,198 @@
-can1 status 2455
-can2 status 2466
-can1 receive [0] 2477
-can1 receive [1] 2488
-can2 receive [0] 2499
-can2 receive [1] 2510
-can1 error 2521
-can2 error 2522
+INPUT REGISTERS
 
-can1 settings 1669
-can2 settings 1683
-can12 filter settings 1697
-can1 control 1820
-can2 control 1824
-can1 transmit [0] 1828
-can1 transmit [1] 1839
-can1 transmit [2] 1850
-can2 transmit [0] 1861
-can2 transmit [1] 1872
-can2 transmit [2] 1883
+* can1 status 2455
+mode 2455
+TME 2456
+TERR 2457
+ALST 2458
+TXOK 2459
+RQCP 2460
+overrun 2461
+REC 2462
+TEC 2463
+BOFF 2464
+EPVF 2465
+
+* can2 status 2466
+mode 2466
+TME 2467
+TERR 2468
+ALST 2469
+TXOK 2470
+RQCP 2471
+overrun 2472
+REC 2473
+TEC 2474
+BOFF 2475
+EPVF 2476
+
+* can1 receive [0] 2477
+numberOfFrames 2477
+ID_L 2478
+ID_H 2479
+IDE 2480
+FMI 2481
+RTR 2482
+DLC 2483
+DATA 2484 - 2487
+
+* can1 receive [1] 2488
+numberOfFrames 2488
+ID_L 2489
+ID_H 2490
+IDE 2491
+FMI 2492
+RTR 2493
+DLC 2494
+DATA 2495 - 2498
+
+* can2 receive [0] 2499
+numberOfFrames 2499
+ID_L 2500
+ID_H 2501
+IDE 2502
+FMI 2503
+RTR 2504
+DLC 2505
+DATA 2506 - 2509
+
+* can2 receive [1] 2510
+numberOfFrames 2510
+ID_L 2511
+ID_H 2512
+IDE 2513
+FMI 2514
+RTR 2515
+DLC 2516
+DATA 2517 - 2520
+
+* can1 error 2521
+errorCode 2521
+
+* can2 error 2522
+errorCode 2522
+
+
+HOLDING REGISTERS
+
+* can1 settings 1669
+scaler 1669
+DBF 1670
+ABOM 1671
+AWUM 1672
+NART 1673
+RFLM 1674
+TXFP 1675
+SLEEP 1676
+SILM 1677
+LBKM 1678
+BRP 1679
+TS1 1680
+TS2 1681
+SJW 1682
+
+* can2 settings 1683
+scaler 1683
+DBF 1684
+ABOM 1685
+AWUM 1686
+NART 1687
+RFLM 1688
+TXFP 1689
+SLEEP 1690
+SILM 1691
+LBKM 1692
+BRP 1693
+TS1 1694
+TS2 1695
+SJW 1696
+
+* can12 filter settings 1697
+scaler 1697
+filterNumber 1698
+CAN2SB 1699
+FMR_L 1700
+FMR_H 1701
+FSR_L 1702
+FSR_H 1703
+FFAR_L 1704
+FFAR_H 1705
+FAR_L 1706
+FAR_H 1707
+FR 1708 - 1819
+
+* can1 control 1820
+receive_ack_0 1820
+receive_ack_1 1821
+error_ack 1822
+busOffRecover 1823
+
+* can2 control 1824
+receive_ack_0 1824
+receive_ack_1 1825
+error_ack 1826
+busOffRecover 1827
+
+* can1 transmit [0] 1828
+TXRQ 1828
+ABRQ 1829
+ID_L 1830
+ID_H 1831
+IDE 1832
+RTR 1833
+DLC 1834
+DATA 1835 - 1838
+
+* can1 transmit [1] 1839
+TXRQ 1839
+ABRQ 1840
+ID_L 1841
+ID_H 1842
+IDE 1843
+RTR 1844
+DLC 1845
+DATA 1846 - 1849
+
+* can1 transmit [2] 1850
+TXRQ 1850
+ABRQ 1851
+ID_L 1852
+ID_H 1853
+IDE 1854
+RTR 1855
+DLC 1856
+DATA 1857 - 1860
+
+* can2 transmit [0] 1861
+TXRQ 1861
+ABRQ 1862
+ID_L 1863
+ID_H 1864
+IDE 1865
+RTR 1866
+DLC 1867
+DATA 1868 - 1871
+
+* can2 transmit [1] 1872
+TXRQ 1872
+ABRQ 1873
+ID_L 1874
+ID_H 1875
+IDE 1876
+RTR 1877
+DLC 1878
+DATA 1879 - 1882
+
+* can2 transmit [2] 1883
+TXRQ 1883
+ABRQ 1884
+ID_L 1885
+ID_H 1886
+IDE 1887
+RTR 1888
+DLC 1889
+DATA 1890 - 1893
+
 
 canInitResult avruser_CAN_Init(CAN_TypeDef* CAN_to_init, type_can_settings_struct* initStruct)
 Производит настройку контроллера CAN_to_init согласно параметрам, указанным в initStruct. В случае, если в initStruct указаны ошибочные параметры, функция подгоняет их до допустимых значений. В случае, если не удается перевести контроллер CAN в режим инициализации, возвращает canInitError, иначе - canInitSuccess.
